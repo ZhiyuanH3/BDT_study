@@ -1,74 +1,124 @@
-import numpy           as     np
+import os
+import numpy                         as np
 from   TrainC_new      import mainF
 import pickle
-import multiprocessing as mp
-
-import argparse as agp
+import multiprocessing               as mp
+import argparse                      as agp
 
 pars = agp.ArgumentParser()
-pars.add_argument('--mass' ,action='store',type=int,help='mass')
-pars.add_argument('--attr' ,action='store',type=str,help='attribute')
+pars.add_argument('--kin'   ,action='store',type=int,help='kinematics'   )
+pars.add_argument('--inputs',action='store',type=str,help='model input'  )
+pars.add_argument('--train' ,action='store',type=int,help='train model' )
+pars.add_argument('--trnm'  ,action='store',type=int,help='train mass'  )
+pars.add_argument('--tstm'  ,action='store',type=int,help='test mass'   )
+pars.add_argument('--attr'  ,action='store',type=str,help='attribute'   )
 
+args   = pars.parse_args()
+kin    = args.kin
+inputs = args.inputs
+train  = args.train
+trnm   = args.trnm
+tstm   = args.tstm
+attr   = args.attr
+print 'train: ', trnm
+print 'test: ' , tstm
 
-args = pars.parse_args()
+ctauSL = []
+ctauSL.append(500) 
+massL  = []
+if tstm:    massL.append(int(tstm))
+else   :    massL.append(50)
 
-mass = args.mass
-attr = args.attr
+bdt_modelL     = '2best'#'full'#'2best'
+if inputs:    bdt_modelL = inputs
 
+attrKin        = 0 # pt,mass,energy__on
+if kin   :    attrKin    = kin
 
-path_result    = '/beegfs/desy/user/hezhiyua/LLP/bdt_output/result/Lisa/bdt_overview/'
+train_on       = 0 
+if train :    train_on   = train
+
+version        = 0 # 0:testing
 selectionOn    = 1
 findBestTwo    = 0
 #multipl       = 8000#1500
-attrKin        = 0 #pt,mass,energy__on
-version        = 1 #4    1:testing
 
 M_train        = 40
+if trnm  :    M_train    = int(trnm)
+
 CT_train       = 500
 M_test_fix     = M_train       
 CT_test_fix    = CT_train
 
-bdt_modelL     = '_2best'#'_full'#'_2best'
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Do not change the order!
+dsc = []
+dsc.append('trn_'     + str(M_train)    + 'GeV_' + str(CT_train)    + 'mm')
+dsc.append('tst_'     + str(massL[0])   + 'GeV_' + str(CT_test_fix) + 'mm')
+dsc.append('Selected' + str(selectionOn)                                  )
+dsc.append(bdt_modelL                                                     )
+dsc.append('kin'      + str(attrKin)                                      )
+dsc.append('v'        + str(version)                                      )
 
-n_sgn          = 397#448
+#dsc.append(attr compare_ctau compare_masses)
 
-ctauSL = [500]#[100,500,1000,2000,5000]
-massL  = [50]#[30]#[40]#[15,20,25,30,35,40,45,50,55,60]
+descrStr       = '_'.join(dsc) 
 
-dsc1           = 'train_on_'+str(M_train)+'_'+str(CT_train)+'mm'
-dsc2           = '_test_on_'+str(massL[0])+'_'+str(CT_test_fix)+'mm'
-dsc3           = bdt_modelL    
-descrStr       = dsc1+dsc2+dsc3 + '_'+attr   #'compare_ctau'#'compare_masses'
+pth_out        = '/beegfs/desy/user/hezhiyua/LLP/bdt_output/result/Lisa/bdt_overview/'
+###################################################################################################
+if   bdt_modelL == 'full':
+    attrA = ['J1cHadEFrac','J1nHadEFrac','J1nEmEFrac','J1cEmEFrac','J1cmuEFrac','J1muEFrac','J1eleEFrac','J1eleMulti','J1photonEFrac','J1photonMulti','J1cHadMulti','J1nHadMulti','J1npr','J1cMulti','J1nMulti','J1nSelectedTracks','J1ecalE']
+elif bdt_modelL == '2best':
+    attrA = ['J1nSelectedTracks','J1photonMulti']#['J1cHadEFrac']#['J1nSelectedTracks']
+if attr:
+    attrA.append(attr)
+print '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Attributes: ', attrA
+###################################################################################################
 
-pklName        = path_result+'save_models/'+'bdt.pkl'
+subd_N_list    = []
+subd_N_list.append(dsc[2])
+subd_N_list.append(dsc[3])
+subd_N_list.append(dsc[4])
+#subd_N_list.append()
+subdir         = '_'.join(subd_N_list)
+path_result    = pth_out + '/' + subdir + '/'
 
+if not os.path.isdir(path_result):
+    os.system('mkdir '+path_result)
+
+#n_sgn          = 397#448
 p = {}
 p['train_test_ratio'] = 0.6
 p['N_bkg_to_train']   = 2000000
 p['N_bkg_to_test']    = 11400000
 p['maxDataLoadCut']   = 888888888
 
-#['J1photonMulti','J1nSelectedTracks']
-###################################################################################################
-if   bdt_modelL == '_full':
-    attrA = ['J1cHadEFrac','J1nHadEFrac','J1nEmEFrac','J1cEmEFrac','J1cmuEFrac','J1muEFrac','J1eleEFrac','J1eleMulti','J1photonEFrac','J1photonMulti','J1cHadMulti','J1nHadMulti','J1npr','J1cMulti','J1nMulti','J1nSelectedTracks','J1ecalE']
-elif bdt_modelL == '_2best':
-    attrA = ['J1cHadEFrac']#['J1nSelectedTracks']
-attrA.append(attr)
-print '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Attributes: ', attrA
-###################################################################################################
-seedL  = [4444]#[1111,2222,3333,4444]
+CL = {}
+CL['LCL'] = {
+              'cHadEFrac'   :['<',0.2],
+              'cMulti'      :['<',10],
+              'nEmEFrac'    :['<',0.15],
+              'nHadEFrac'   :['>',0.8],
+              'photonEFrac' :['<',0.1],
+            }
+
+CL['HCL'] = {
+              'cHadEFrac'   :['<',0.08],
+              'cMulti'      :['<',8],
+              'nEmEFrac'    :['<',0.08],
+              'nHadEFrac'   :['>',0.9],
+              'photonEFrac' :['<',0.08],
+              'ecalE'       :['<',10]
+            }
+
+
+seedL     = [4444]
 
 if   selectionOn == 0:
     path_data = '/beegfs/desy/user/hezhiyua/2bBacked/skimmed/Skim/forbdtnew/brianSample/'
-    selectedSamples = 0
-    versionStr = str(version)+'_noSelection'
 elif selectionOn == 1:
     path_data = '/beegfs/desy/user/hezhiyua/2bBacked/skimmed/Skim/fromLisa_forBDT/with_triggerBool/withNSelectedTracks/'
-    selectedSamples = 1
-    versionStr = str(version)+'_withSelection'
 
-#def setParams(attrS,load_from_root,bdtTrainOn,ct,mass,seed):
+
 def setParams(**pp):
     keyList = pp.keys()
     if not 'maxDataLoadCut'    in keyList:    maxDataLoadCut    = 3000000 
@@ -91,16 +141,18 @@ def setParams(**pp):
                                #'lolaOn'                        : 0,
                                #'fcnOn'                         : 0,
                                'weight_on'                     : 1, #0: not weighting qcd
-                               #data
-                               'N_sgn'                         : n_sgn,
+                               #--------------------------------------------------------------Data
+                               #'N_sgn'                         : n_sgn,
+                               'descr'                         : dsc,
+                               'cut_base'                      : CL,
                                'test_mode'                     : pp['test_mode'], 
-                               'maxDataLoadCut'                : maxDataLoadCut,#2000000,#700000,#500000,#1000000,
+                               'maxDataLoadCut'                : maxDataLoadCut,
                                'dataUseThrsd'                  : 50000,
                                'num_of_jets'                   : num_of_jets,
-                               'selectedSample'                : selectedSamples,
-                               'sgn_mass'                      : pp['mass'],#40,
+                               'selectedSample'                : selectionOn,
+                               'sgn_mass'                      : pp['mass'],
                                'sgn_ctauS'                     : pp['ct'], 
-                               'outName'                       : 'roc_bdt',#'roc_fcnn_vs_bdt',
+                               'out_roc_name'                  : 'roc_bdt',
                                'qcdPrefix'                     : 'QCD_HT', 
                                'sgnPrefix'                     : 'VBFH_HToSSTobbbb_MH-125_MS-',        
                                'versionN_b'                    : 'TuneCUETP8M1_13TeV-madgraphMLM-pythia8-v1',
@@ -110,17 +162,12 @@ def setParams(**pp):
                                'N_bkg_to_train'                : pp['N_bkg_to_train'],
                                #'bkg_multiple'                  : bkg_multiple,#10,#15,#10,
                                #'bkg_test_multiple'             : bkg_test_multiple,#50000,#multipl,#100,#multipl,#70,#100
-                               #general
+                               #--------------------------------------------------------------General
                                'xs'                            : { '50to100': 246300000 , '100to200': 28060000 , '200to300': 1710000 , '300to500': 351300 , '500to700': 31630 , '700to1000': 6802 , '1000to1500': 1206 , '1500to2000': 120.4 , '2000toInf': 25.25 , 'sgn': 3.782 },
                                'kinList'                       : ['pt','mass','energy'],
-                               #'roc_resolution'                : 0.0001,
                                'attrAll'                       : pp['attrAll'],
-                               #'bmA1'                          : 'J1cHadEFrac',#'cHadEFrac',
-                               #'bmA2'                          : 'J1nHadEFrac',#'nHadEFrac',
-                               #'bmA1_th'                       : 0.38,
-                               #'bmA2_th'                       : 1,#1000000,#0.38,
-                               'attributeKin'                  : attrKin,#1,
-                               #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~hyper_parameters
+                               'attributeKin'                  : attrKin,
+                               #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Hyper_Parameters
                                #-----------------------fcnn
                                #hypr_model
                                #'n_nodes'                       : 30,
@@ -129,22 +176,22 @@ def setParams(**pp):
                                #'n_batch_size'                  : 512,#64
                                #'n_epochs'                      : 20,
                                #-----------------------fcnn
-                               #-----------------------------------bdt
+                               #-----------------------------------BDT
                                'max_depth'                     : 4,
                                'algorithm'                     : 'SAMME',  
                                'n_estimators'                  : 140,
                                'learning_rate'                 : 0.1,
-                               #-----------------------------------bdt
+                               #-----------------------------------BDT
                                #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~hyper_parameters
                                #Fixing random state for reproducibility
-                               'random_seed' : pp['random_seed'],#4444,
-                               #default strings
-                               'isSigL'  : 'is_signal',
-                               'weightL' : 'weight',
-                               'pkl_name'  : pklName,
-                               'path'      : path_data,
-                               'path_out'  : '/beegfs/desy/user/hezhiyua/LLP/bdt_output/roc/',
-                               'path_lola' : '',
+                               'random_seed'                   : pp['random_seed'],
+                               #-----------------------------------------------------Default_Strings
+                               'isSigL'                        : 'is_signal',
+                               'weightL'                       : 'weight',
+                               'path'                          : path_data,
+                               #'path_roc'                      : '/beegfs/desy/user/hezhiyua/LLP/bdt_output/roc/',
+                               'path_result'                   : path_result,
+                               #'path_lola'                     : '',
                                }
     return params
 
@@ -154,20 +201,21 @@ result           = {}
 result['masses'] = {}
 result['ctau']   = {}
 sd               = seedL[0]
-#for sd in seedL:
-if 1: 
+
+def train_model(): 
+    global result
     vdpar = setParams( 
-                          attrAll=attrA                           ,\
-                          load_from_root=1                        ,\
-                          bdtTrainOn=1                            ,\
-                          ct=CT_train                             ,\
-                          mass=M_train                            ,\
-                          random_seed=sd                          ,\
-                          train_test_ratio = p['train_test_ratio'],\
-                          N_bkg_to_test    = p['N_bkg_to_test']   ,\
-                          N_bkg_to_train   = p['N_bkg_to_train']  ,\
-                          maxDataLoadCut   = p['maxDataLoadCut']  ,\
-                          test_mode=0 
+                       attrAll          = attrA                ,\
+		       load_from_root   = 1                    ,\
+		       bdtTrainOn       = 1                    ,\
+		       ct               = CT_train             ,\
+		       mass             = M_train              ,\
+		       random_seed      = sd                   ,\
+		       train_test_ratio = p['train_test_ratio'],\
+		       N_bkg_to_test    = p['N_bkg_to_test']   ,\
+		       N_bkg_to_train   = p['N_bkg_to_train']  ,\
+		       maxDataLoadCut   = p['maxDataLoadCut']  ,\
+		       test_mode=0 
                      )
 
     result['masses'][M_train] = mainF(vdpar)
@@ -177,8 +225,6 @@ if 1:
 # To make sure the qcd data for test and training don't overlap, the config should be same as the one for the training
 def mass_compare(massL_l,load_root=1):
     global result
-    #result['masses'] = {}
-
     for mi in massL_l:
         vdpar = setParams(attrAll=attrA                           ,\
                           load_from_root=load_root                ,\
@@ -190,51 +236,41 @@ def mass_compare(massL_l,load_root=1):
                           N_bkg_to_test    = p['N_bkg_to_test']   ,\
                           N_bkg_to_train   = p['N_bkg_to_train']  ,\
                           maxDataLoadCut   = p['maxDataLoadCut']  ,\
-                          test_mode=1 )
+                          test_mode=1 
+                         )
          
         result['masses'][mi] = mainF(vdpar)                  
  
+
 def lifeTime_compare(ctauL_l,load_root=1):
     global result
-    #result['ctau']   = {}
-
     for cti in ctauL_l:
-        vdpar = setParams(attrAll=attrA,\
-                          load_from_root=load_root,\
-                          bdtTrainOn=0,\
-                          ct=cti,\
-                          mass=M_test_fix,\
-                          random_seed=sd,\
-                          train_test_ratio=p['train_test_ratio'],\
-                          bkg_test_multiple=60000,\
-                          bkg_multiple=8000,\
-                          maxDataLoadCut=p['maxDataLoadCut'],\
-                          N_sgn=n_sgn)
+        vdpar = setParams(attrAll           = attrA                ,\
+                          load_from_root    = load_root            ,\
+                          bdtTrainOn        = 0                    ,\
+                          ct                = cti                  ,\
+                          mass              = M_test_fix           ,\
+                          random_seed       = sd                   ,\
+                          train_test_ratio  = p['train_test_ratio'],\
+                          bkg_test_multiple = 60000                ,\
+                          bkg_multiple      = 8000                 ,\
+                          maxDataLoadCut    = p['maxDataLoadCut']  ,\
+                          N_sgn             = n_sgn 
+                         )
 
         result['ctau'][cti] = mainF(vdpar)
 
-#mass_compare(massL, load_root=1) #1
+if train_on == 1:    train_model()
+if train_on == 0:    mass_compare(massL, load_root=1) 
 #lifeTime_compare(ctauSL, load_root=1)
 
 
-"""
 ##################################dumping############################################
-if   attrKin == 0:    pklN = 'res_v'     + versionStr + '_' + descrStr + '.pickle'
-elif attrKin == 1:    pklN = 'res_kin_v' + versionStr + '_' + descrStr + '.pickle'
+pklN     = 'res'+'_'+descrStr+'.pickle'
 pth_dump = path_result + pklN
 with open( pth_dump , 'wb' ) as f1:    pickle.dump(result,f1)
-print 'results stored at: ' + pth_dump
+print '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Results stored at: ' + pth_dump
 ##################################dumping############################################
-"""
-
-##################################dumping############################################
-if   attrKin == 0:    pklN = 'res_v'     + versionStr + '_' + descrStr + '.pickle'
-elif attrKin == 1:    pklN = 'res_kin_v' + versionStr + '_' + descrStr + '.pickle'
-pth_dump = path_result + pklN
-with open( pth_dump , 'wb' ) as f1:    pickle.dump(result,f1)
-print 'results stored at: ' + pth_dump
-##################################dumping############################################
-
 
 
 
@@ -254,8 +290,6 @@ print 'results stored at: ' + pth_dump
 
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Old Lines:
-
-
 """
 nCores = 80
 P = {}

@@ -12,27 +12,39 @@ flags['tstm']['flag'] = ' --tstm '
 flags['tstm']['list'] = range(15,65,5)
 
 
+main_str = 'sbatch bdt_batch.py '
+
+
 #"""
 for i in flags['tstm']['list']:
     if i==40: continue
-    act('sbatch bdt_batch.py ' + flags['tstm']['flag'] + str(i))
+    fix_str = flags['tstm']['flag'] + str(i)
+
+    act(main_str+fix_str+' --kin'+' 0'+' --inputs'+' 2best')
     slp(40)
+    act(main_str+fix_str+' --kin'+' 0'+' --inputs'+' full' )
+    slp(40)
+    act(main_str+fix_str+' --kin'+' 1'+' --inputs'+' 2best')
+    slp(40)
+    act(main_str+fix_str+' --kin'+' 1'+' --inputs'+' full' ) 
+
+
 #"""
 
 
 
 
 """
-act('sbatch bdt_batch.py ' + ' --trnm' + ' 40' + ' --kin' + ' 0' + ' --inputs' + ' 2best')
+act(main_str+' --kin'+' 0'+' --inputs'+' 2best')
 slp(40)
 
-act('sbatch bdt_batch.py ' + ' --trnm' + ' 40' + ' --kin' + ' 0' + ' --inputs' + ' full')
+act(main_str+' --kin'+' 0'+' --inputs'+' full' )
 slp(40)
 
-act('sbatch bdt_batch.py ' + ' --trnm' + ' 40' + ' --kin' + ' 1' + ' --inputs' + ' 2best')
+act(main_str+' --kin'+' 1'+' --inputs'+' 2best')
 slp(40)
 
-act('sbatch bdt_batch.py ' + ' --trnm' + ' 40' + ' --kin' + ' 1' + ' --inputs' + ' full')
+act(main_str+' --kin'+' 1'+' --inputs'+' full' )
 """
 
 

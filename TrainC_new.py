@@ -53,30 +53,12 @@ def mainF(kwargs):
         JetPrfx            = in_dict['JetPrfx']         
 
         #--------------------------benchmark--------------------------------
-        LCL = {
-                'cHadEFrac'   :['<',0.2],
-                'cMulti'      :['<',10],
-                'nEmEFrac'    :['<',0.15],
-                'nHadEFrac'   :['>',0.8],
-                'photonEFrac' :['<',0.1],
-              }
-
-        HCL = {
-                'cHadEFrac'   :['<',0.08],
-                'cMulti'      :['<',8],
-                'nEmEFrac'    :['<',0.08],
-                'nHadEFrac'   :['>',0.9],
-                'photonEFrac' :['<',0.08],
-                'ecalE'       :['<',10]
-              }
-
-        
+        LCL                       = p['cut_base']['LCL'] 
+        HCL                       = p['cut_base']['HCL']
         cutBaseDict               = {}
         cutBaseDict['Loose Cut']  = id.CutBaseBenchmarkNew(df_test_orig, LCL, JetPrfx, RefA, p['isSigL'])
-        cutBaseDict['Hard Cut']   = id.CutBaseBenchmarkNew(df_test_orig, HCL, JetPrfx, RefA, p['isSigL'])
+        cutBaseDict['Hard Cut' ]  = id.CutBaseBenchmarkNew(df_test_orig, HCL, JetPrfx, RefA, p['isSigL'])
         #--------------------------benchmark--------------------------------        
-
-
 
   
         allAttrList    = id.CountAttrInList(ColumnLabelDict_sk, p['attrAll'])
@@ -91,50 +73,25 @@ def mainF(kwargs):
         #print ColumnLabelDict_sk
      
     if   p['bdtTrainOn'] == 1:
-        bdt_train(ps=p, X_Train=X_train, y_Train=y_train, W_train=w_train, pklName=p['pkl_name'])
-      
-        output_dict = bdt_test(
-                                X_Test       = X_test,\
-                                y_Test       = y_test,\
-                                W_test       = w_test,\
-                                df_Test_orig = df_test_orig,\
-                                pklName      = p['pkl_name'],\
-                                isSig_L      = p['isSigL'],\
-                                calcROC      = p['calcROCon']
-                              )
-
-
+        bdt_train(ps=p, X_Train=X_train, y_Train=y_train, W_train=w_train)
     elif p['bdtTrainOn'] == 0:
-        output_dict = bdt_test(                                  
+        pass
+    output_dict = bdt_test(                                  
 			        X_Test       = X_test,\
 			        y_Test       = y_test,\
 			        W_test       = w_test,\
 			        df_Test_orig = df_test_orig,\
-			        pklName      = p['pkl_name'],\
-			        isSig_L      = p['isSigL'],\
-			        calcROC      = p['calcROCon'] 
-			      )
+                                ps           = p 
+                          )
 
-        output_dict['cut_based'] = cutBaseDict        
-    #output_dict = bdt_main(PS=params, X_Trains=X_train, X_Tests=X_test, y_Trains=y_train, y_Tests=y_test, W_trains=w_train, W_tests=w_test, df_Test_origs=df_test_orig, pklNames='save_models/'+'bdt.pkl', trainOn=bdtTrainOn, isSig_Ls=isSigL, calcROCs=calcROCon)
+    output_dict['cut_based'] = cutBaseDict        
+    #output_dict = bdt_main(PS=params, X_Trains=X_train, X_Tests=X_test, y_Trains=y_train, y_Tests=y_test, W_trains=w_train, W_tests=w_test, df_Test_origs=df_test_orig)
 
 
     #~~~~~~~~plot roc-curve
     #########################################################################################
     if p['plotOn']:
         pass
-        """  
-        out_name     = 'roc'
-        cutBaseDict  = {
-                         'Loose Cut': [sgn_eff    , fls_eff   ],
-                         'Hard Cut' : [sgn_eff_HC , fls_eff_HC]
-                       }
-
-        pklDict      = {
-                         'BDT'+'(descriptions)': {'aoc':auc_bdt, 'fpr':fpr_bdt, 'tpr':tpr_bdt}
-                       }
-        plotROC_main(path_out, out_name, cutBaseDict, pklDict)
-        """ 
     #########################################################################################
 
     return output_dict
