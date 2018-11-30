@@ -1,22 +1,57 @@
-from os import system as act
-
+from os   import system as act
+from time import sleep  as slp
 
 
 flags = {}
-flags['mass'] = {}
-flags['mass']['flag'] = ' --mass '
-flags['mass']['list'] = range(15,65,5)
+flags['trnm'] = {}
+flags['trnm']['flag'] = ' --trnm '
+flags['trnm']['list'] = []
 
-flags['t'] = {}
-flags['t']['flag'] = ' -t '
-flags['t']['list'] = ['y','n']
+flags['tstm'] = {}
+flags['tstm']['flag'] = ' --tstm '
+flags['tstm']['list'] = range(15,65,5)
 
 
-
-for i in flags['mass']['list']:
+#"""
+for i in flags['tstm']['list']:
     if i==40: continue
-    act('sbatch bdt_batch.py ' + flags['mass']['flag'] + str(i))
+    act('sbatch bdt_batch.py ' + flags['tstm']['flag'] + str(i))
+    slp(40)
+#"""
 
+
+
+
+"""
+act('sbatch bdt_batch.py ' + ' --trnm' + ' 40' + ' --kin' + ' 0' + ' --inputs' + ' 2best')
+slp(40)
+
+act('sbatch bdt_batch.py ' + ' --trnm' + ' 40' + ' --kin' + ' 0' + ' --inputs' + ' full')
+slp(40)
+
+act('sbatch bdt_batch.py ' + ' --trnm' + ' 40' + ' --kin' + ' 1' + ' --inputs' + ' 2best')
+slp(40)
+
+act('sbatch bdt_batch.py ' + ' --trnm' + ' 40' + ' --kin' + ' 1' + ' --inputs' + ' full')
+"""
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Testing:
 
 """
 for key in flags:

@@ -9,30 +9,48 @@
 #SBATCH --mail-user zhiyuan.he@desy.de
 
 
-from os import system as act
+from   os        import system as act
 import argparse
 
 pars = argparse.ArgumentParser()
 
-#pars.add_argument('-a',action='store',type=str,help='argument')
-pars.add_argument('--mass',action='store',type=str,help='argument')
+pars.add_argument('--trnm' ,action='store',type=str,help='train mass')
+pars.add_argument('--tstm' ,action='store',type=str,help='test mass' )
+pars.add_argument('--train',action='store',type=str,help='train model')
+
+pars.add_argument('--kin'   ,action='store',type=str,help='kinematics'  )
+pars.add_argument('--inputs',action='store',type=str,help='model inputs')
+
 
 
 args = pars.parse_args()
 
-a = args.a
-m = args.mass
+trnm  = args.trnm
+tstm  = args.tstm
+train = args.train
 
-#act('cd /home/hezhiyua/desktop/BDT_study/sbatch/')
-
-act('cd /home/hezhiyua/desktop/BDT_study/')
-#act('python t.py' + ' -b ' + a)
-
-act('python bdtTrain_new_test.py ' + ' --mass ' + str(m))
+kin    = args.kin
+inputs = args.inputs
 
 
+path = '/home/hezhiyua/desktop/BDT_study/'
 
-#python bdtTrain_new_test.py --attr 
+
+#act( 'python ' + path + 'bdtTrain_new_test.py ' + ' --tstm ' + str(tstm) )
+
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Training Mode:
+act('python '+path+'bdtTrain_new_test.py'+' --train '+'1'+' --kin '+kin+' --inputs '+inputs)
+
+
+
+
+
+
+
+
+
+
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Tesging Mode:
 
 
 
