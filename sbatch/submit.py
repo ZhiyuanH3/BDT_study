@@ -1,23 +1,27 @@
 from os   import system as act
 from time import sleep  as slp
 
+flags                 = {}
 
-flags = {}
-flags['trnm'] = {}
+flags['trnm']         = {}
 flags['trnm']['flag'] = ' --trnm '
 flags['trnm']['list'] = []
 
-flags['tstm'] = {}
+flags['tstm']         = {}
 flags['tstm']['flag'] = ' --tstm '
 flags['tstm']['list'] = range(15,65,5)
 
+main_str   = 'sbatch bdt_batch.py '
+skip_point = 50#40
 
-main_str = 'sbatch bdt_batch.py '
 
 
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Testing Mode:
 #"""
 for i in flags['tstm']['list']:
-    if i==40: continue
+
+    if i == skip_point: continue
+
     fix_str = flags['tstm']['flag'] + str(i)
 
     act(main_str+fix_str+' --kin'+' 0'+' --inputs'+' 2best')
@@ -27,23 +31,18 @@ for i in flags['tstm']['list']:
     act(main_str+fix_str+' --kin'+' 1'+' --inputs'+' 2best')
     slp(40)
     act(main_str+fix_str+' --kin'+' 1'+' --inputs'+' full' ) 
-
-
 #"""
 
 
 
-
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Training Mode:
 """
 act(main_str+' --kin'+' 0'+' --inputs'+' 2best')
 slp(40)
-
 act(main_str+' --kin'+' 0'+' --inputs'+' full' )
 slp(40)
-
 act(main_str+' --kin'+' 1'+' --inputs'+' 2best')
 slp(40)
-
 act(main_str+' --kin'+' 1'+' --inputs'+' full' )
 """
 

@@ -18,37 +18,43 @@ pars.add_argument('--tstm'   ,action='store',type=str,help='test mass' )
 pars.add_argument('--train'  ,action='store',type=str,help='train model')
 pars.add_argument('--kin'    ,action='store',type=str,help='kinematics'  )
 pars.add_argument('--inputs' ,action='store',type=str,help='model inputs')
-
 #[100,500,1000,2000,5000]
-args   = pars.parse_args()
+args        = pars.parse_args()
 
-trnm   = args.trnm
-tstm   = args.tstm
-train  = args.train
-kin    = args.kin
-inputs = args.inputs
+trnm        = args.trnm
+tstm        = args.tstm
+train       = args.train
+kin         = args.kin
+inputs      = args.inputs
 
 path        = '/home/hezhiyua/desktop/BDT_study/'
 script_name = 'bdtTrain_new_test.py' 
 main_str    = 'python '+path+script_name
 
-# >>>>>>>>>>>>>>>>>>>>>>>>>>>>> whether to train bdt:
-fix_str     = ' --train '+'0'
-#fix_str     = ' --train '+'1'
-
-# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> choose which trained model:
-train_str   = ' --trnm '+str(40)
-
-
+mm          = 50
+combi_str   = ' --kin '+kin+' --inputs '+inputs
 
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Training Mode:
-#act(main_str+fix_str    +    ' --kin '+kin+' --inputs '+inputs)
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>> whether to train bdt:
+#fix_str     = ' --train '+'1'
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> choose which trained model:
+#train_str   = ' --trnm '+str(mm)
+#train_str   = train_str+' --tstm '+str(mm)
 
 
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Tesging Mode:
-act(main_str+fix_str    +    train_str+' --tstm '+str(tstm)+' --kin '+kin+' --inputs '+inputs)
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>> whether to train bdt:
+fix_str     = ' --train '+'0'
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> choose which trained model:
+train_str   = ' --trnm '+str(mm)
+train_str   = train_str+' --tstm '+str(tstm)
+
+
+
+
+act(main_str+fix_str    +    train_str+combi_str)
 
 
 

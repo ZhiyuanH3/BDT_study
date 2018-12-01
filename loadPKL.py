@@ -1,7 +1,6 @@
 from sklearn.externals import joblib
 from matplotlib        import pyplot  as plt
 
-
 s = joblib.load('s.pkl')
 b = joblib.load('b.pkl')
 

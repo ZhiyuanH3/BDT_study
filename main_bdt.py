@@ -6,7 +6,6 @@ from sklearn.tree        import DecisionTreeClassifier
 from sklearn.externals   import joblib
 from sklearn             import metrics
 from timeit              import default_timer    as timer
- 
 import os
 import sys
 sys.path.append('/home/hezhiyua/desktop/PyrootLearn/ROC/performance_test/')
@@ -67,7 +66,7 @@ def DecisionScores(model,X_tests,df_test_origin,p):
         # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Poisson Uncertainty:
         resolution = 1000
         resolution = 1/float(resolution)
-        for c in np.arange(0,1,resolution): #sortedProbList_small:
+        for c in np.arange(0,1,resolution): 
             ifSgnLike_sig = probS > c
             ifSgnLike_bkg = probB > c
             if len( weightB[ifSgnLike_bkg] ) == 0:
