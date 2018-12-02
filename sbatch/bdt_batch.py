@@ -31,7 +31,7 @@ path        = '/home/hezhiyua/desktop/BDT_study/'
 script_name = 'bdtTrain_new_test.py' 
 main_str    = 'python '+path+script_name
 
-mm          = 50
+mm          = 40#60
 combi_str   = ' --kin '+kin+' --inputs '+inputs
 
 
@@ -54,7 +54,13 @@ train_str   = train_str+' --tstm '+str(tstm)
 
 
 
+
 act(main_str+fix_str    +    train_str+combi_str)
+
+# single test
+#act(main_str+fix_str    +    ' --trnm 20 --tstm 40 --kin 1 --inputs 2best')
+
+
 
 
 

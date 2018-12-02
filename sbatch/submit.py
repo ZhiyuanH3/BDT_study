@@ -9,10 +9,13 @@ flags['trnm']['list'] = []
 
 flags['tstm']         = {}
 flags['tstm']['flag'] = ' --tstm '
-flags['tstm']['list'] = range(15,65,5)
+flags['tstm']['list'] = [20,30,40,50,60] # range(15,65,5)
+
+wait_time  = 40
+
 
 main_str   = 'sbatch bdt_batch.py '
-skip_point = 50#40
+skip_point = 40#60#30#20#60#35#25#15#40
 
 
 
@@ -24,13 +27,14 @@ for i in flags['tstm']['list']:
 
     fix_str = flags['tstm']['flag'] + str(i)
 
-    act(main_str+fix_str+' --kin'+' 0'+' --inputs'+' 2best')
-    slp(40)
-    act(main_str+fix_str+' --kin'+' 0'+' --inputs'+' full' )
-    slp(40)
+    #act(main_str+fix_str+' --kin'+' 0'+' --inputs'+' 2best')
+    #slp(wait_time)
+    #act(main_str+fix_str+' --kin'+' 0'+' --inputs'+' full' )
+    #slp(wait_time)
     act(main_str+fix_str+' --kin'+' 1'+' --inputs'+' 2best')
-    slp(40)
-    act(main_str+fix_str+' --kin'+' 1'+' --inputs'+' full' ) 
+    slp(wait_time)
+    #act(main_str+fix_str+' --kin'+' 1'+' --inputs'+' full' ) 
+    #slp(wait_time) 
 #"""
 
 
@@ -38,11 +42,11 @@ for i in flags['tstm']['list']:
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Training Mode:
 """
 act(main_str+' --kin'+' 0'+' --inputs'+' 2best')
-slp(40)
+slp(wait_time)
 act(main_str+' --kin'+' 0'+' --inputs'+' full' )
-slp(40)
+slp(wait_time)
 act(main_str+' --kin'+' 1'+' --inputs'+' 2best')
-slp(40)
+slp(wait_time)
 act(main_str+' --kin'+' 1'+' --inputs'+' full' )
 """
 
