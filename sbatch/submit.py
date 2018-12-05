@@ -1,3 +1,13 @@
+#!/bin/python2.7
+#SBATCH --partition=all
+#SBATCH --time=00:30:00
+#SBATCH --nodes=1
+#SBATCH --job-name bdts
+#SBATCH --output /home/hezhiyua/logs/BDT-%j.out
+#SBATCH --error  /home/hezhiyua/logs/BDT-%j.err
+#SBATCH --mail-type END
+#SBATCH --mail-user zhiyuan.he@desy.de
+
 from os   import system as act
 from time import sleep  as slp
 
@@ -11,44 +21,79 @@ flags['tstm']         = {}
 flags['tstm']['flag'] = ' --tstm '
 flags['tstm']['list'] = [20,30,40,50,60] # range(15,65,5)
 
-wait_time  = 40
+flags['tstl']         = {}
+flags['tstl']['flag'] = ' --tstl '
+flags['tstl']['list'] = [100,500,1000,2000,5000] 
+
+
+wait_time  = 20#40
 
 
 main_str   = 'sbatch bdt_batch.py '
-skip_point = 40#60#30#20#60#35#25#15#40
+skip_point = 40#60#50#30#20#60#40#30#20
+#skip_point = 5000#2000#1000#500#100
 
-
+#mm         = 40 
+#ll         = 500
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Testing Mode:
-#"""
+"""
 for i in flags['tstm']['list']:
 
     if i == skip_point: continue
 
-    fix_str = flags['tstm']['flag'] + str(i)
+    fix_str = flags['tstm']['flag'] + str(i) #+  flags['tstl']['flag'] + str(ll)
 
-    #act(main_str+fix_str+' --kin'+' 0'+' --inputs'+' 2best')
+    act(main_str+fix_str+' --kin'+' 0'+' --inputs'+' 2best')
+    slp(wait_time)
+    act(main_str+fix_str+' --kin'+' 0'+' --inputs'+' full' )
+    slp(wait_time)
+    #act(main_str+fix_str+' --kin'+' 1'+' --inputs'+' 2best')
     #slp(wait_time)
-    #act(main_str+fix_str+' --kin'+' 0'+' --inputs'+' full' )
-    #slp(wait_time)
+    act(main_str+fix_str+' --kin'+' 1'+' --inputs'+' full' ) 
+    slp(wait_time) 
+"""
+"""
+for i in flags['tstl']['list']:
+
+    if i == skip_point: continue
+
+    fix_str = flags['tstl']['flag'] + str(i) #+  flags['tstm']['flag'] + str(mm)
+
+    act(main_str+fix_str+' --kin'+' 0'+' --inputs'+' 2best')
+    slp(wait_time)
+    act(main_str+fix_str+' --kin'+' 0'+' --inputs'+' full' )
+    slp(wait_time)
     act(main_str+fix_str+' --kin'+' 1'+' --inputs'+' 2best')
     slp(wait_time)
-    #act(main_str+fix_str+' --kin'+' 1'+' --inputs'+' full' ) 
-    #slp(wait_time) 
-#"""
-
-
+    act(main_str+fix_str+' --kin'+' 1'+' --inputs'+' full' ) 
+    slp(wait_time) 
+"""
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Training Mode:
-"""
+#"""
 act(main_str+' --kin'+' 0'+' --inputs'+' 2best')
 slp(wait_time)
 act(main_str+' --kin'+' 0'+' --inputs'+' full' )
 slp(wait_time)
-act(main_str+' --kin'+' 1'+' --inputs'+' 2best')
-slp(wait_time)
+#act(main_str+' --kin'+' 1'+' --inputs'+' 2best')
+#slp(wait_time)
 act(main_str+' --kin'+' 1'+' --inputs'+' full' )
-"""
+#slp(wait_time)
+#"""
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

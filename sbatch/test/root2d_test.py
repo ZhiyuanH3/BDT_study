@@ -10,6 +10,10 @@ from   ROOT import TFile, TLorentzVector, TTree
 from   array import array
 import sys
 import time as tt
+
+import multiprocessing as mp
+
+
 timeStart = tt.time()
 """
 if len(sys.argv) != 3:
@@ -45,61 +49,75 @@ def periodic(phi, eta, e):
   #print np.array(zi).shape
   return xi, yi, zi
 
-Npix   = int(40)#int(128)#int(512)#int(32) 
-imgpix = int(40)#int(128)#int(512)#int(32)
+nnn    = 40#2
+Npix   = int(nnn)#int(40)#int(128)#int(512)#int(32) 
+imgpix = int(nnn)#int(40)#int(128)#int(512)#int(32)
 
 
 path    = '/beegfs/desy/user/hezhiyua/backed/dustData/crab_folder_v2/'
 pathOut = '/beegfs/desy/user/hezhiyua/backed/dustData/crab_folder_v2/test/'
 Fname   = 'VBFH_HToSSTobbbb_MH-125_MS-40_ctauS-500_TuneCUETP8M1_13TeV-powheg-pythia8_PRIVATE-MC.root'
-fin   = TFile(path + Fname)
 fout  = TFile(pathOut + 'for2d.root','recreate')
-tin   = fin.Get('ntuple/tree')
 tout  = TTree('tree44','tree44')
-b1    = tin.GetBranch('PFCandidates')
 
 img = np.zeros(imgpix**2, dtype=float)
 
 imgVec = ROOT.std.vector('float')()
 tout.Branch('imgv', imgVec)
-
 tout.Branch('img', img, 'img[' + str(imgpix**2) + ']/D')
 
-entries = tin.GetEntriesFast()
-for jentry in xrange(entries):
+
+
+#entries = tin.GetEntriesFast()
+entries = 100
+
+
+
+
+
+def worker(jentry):#, lock):
+    #lock.acquire()
+
+
+
+    fin   = TFile(path + Fname)
+    tin   = fin.Get('ntuple/tree')
+    b1    = tin.GetBranch('PFCandidates')
+
+
+
+
+
     phi = []
     eta = []
     e   = []
     ientry = tin.GetEntry(jentry)
     
+    #return
+
     print '~~~~~~~~~~~~~~~~entry'
     print jentry
     b1.GetEntry(jentry)
     
+    
+
     energy1   = b1.FindBranch('PFCandidates.energy')
     phi1      = b1.FindBranch('PFCandidates.phi')
     eta1      = b1.FindBranch('PFCandidates.eta')
     jetindex1 = b1.FindBranch('PFCandidates.jetIndex')
-    for num in range(0,100): #100
-        #print 'jet index'
-        #print jetindex1.GetValue(num,1)
-        #print energy1.GetValue(num,1)
+
+    n_depth = 100
+    for num in range(0,n_depth): 
         if energy1.GetValue(num,1) == 0.: continue
         if eta1.GetValue(num,1) == 0.: continue
         if phi1.GetValue(num,1) == 0.: continue
         phi.append(phi1.GetValue(num,1))
         eta.append(eta1.GetValue(num,1))
         e.append(energy1.GetValue(num,1))
-    #print phi
-    #print e
-    #print eta
-
-    if len(e) == 0: continue
+    if len(e) == 0: return#continue
     
 
     xi, yi, zi = periodic(phi, eta, e)
-
-    print np.max(xi)
 
     #--------define roi
     zroi = zi[ Npix : int(2 * Npix) ]
@@ -107,9 +125,11 @@ for jentry in xrange(entries):
     yroi = yi[ Npix : int(2 * Npix) ]
     
     #print np.array(zroi).shape
-
+    
+    
     #--------align
     maximap  = (  zroi == filters.maximum_filter( zroi , size=(3,3) )  ) #3,3
+
     #print maximap
     maximapi = maximap.nonzero()[0] 
     #print maximapi 
@@ -170,44 +190,47 @@ for jentry in xrange(entries):
       img[j]=image[j]
       imgVec.push_back(image[j])
     tout.Fill()
-    
+    #"""
    
-        #--------plot
-    if 0:    
-        f, ((ax1, ax2),(ax3,ax4)) = plt.subplots(2,2)
-        im = ax1.imshow(zroi,origin='lower',extent=[-1.,1.,-1.,1.])
-        ax2.imshow(zi,origin='lower',extent=[-1.,1.,-3.,3.],aspect='auto')
-        ax2.scatter([center[0,0]],[center[0,1]], marker='o', color='r', s=10)
-        ax2.scatter([second[0,0]],[second[0,1]], marker='o', color='magenta', s=10)
-        ax2.scatter([third[0,0]],[third[0,1]], marker='o', color='black', s=10)
-        
-        ax3.imshow(zp,origin='lower',extent=[-1.,1.,-1.,1.])
-        
-        ax4.imshow(zp,origin='lower',extent=[-1.,1.,-1.,1.],interpolation='nearest')
-        ax1.set_xlabel("$ \eta' $")
-        ax1.set_ylabel("$ \phi' $")
-        ax2.set_xlabel("$ \eta' $")
-        ax2.set_ylabel("$ \phi' $")
-        ax3.set_xlabel("$ \eta'' $")
-        ax3.set_ylabel("$ \phi'' $")
-        ax4.set_xlabel("$ \eta'' $")
-        ax4.set_ylabel("$ \phi'' $")
-        ax1.xaxis.labelpad = 20
-        ax2.xaxis.labelpad = 20
-        ax3.xaxis.labelpad = 20
-        ax4.xaxis.labelpad = 20
-        f.subplots_adjust(right=0.8)
-        cbar_ax = f.add_axes([0.85, 0.15, 0.02, 0.7])
-        cb = f.colorbar(im, cax=cbar_ax)
-        cb.set_label("E")
-        f.subplots_adjust(hspace=.5)
-        #f.show()
-        #f.savefig("%d.pdf" %jentry)
+    #lock.release()
+
+
+
+
+lock = mp.Lock()
+record=[]
+
+for j in xrange(10):
+
+    process = mp.Process(target=worker, args=(j,))
+    process.start()
+    record.append(process)
+
+
+for p in record:
+    p.join()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 tout.Write()
 fout.Close()
 
-fin.Close()
+#fin.Close()
 
 timeStop = tt.time()
 print str(timeStop - timeStart)+'sec' 

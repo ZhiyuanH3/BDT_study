@@ -6,7 +6,7 @@ import multiprocessing               as mp
 import argparse                      as agp
 
 pars = agp.ArgumentParser()
-pars.add_argument('--kin'   ,action='store',type=int,help='kinematics'     )
+pars.add_argument('--kin'   ,action='store',type=str,help='kinematics'     )
 pars.add_argument('--inputs',action='store',type=str,help='model input'    )
 pars.add_argument('--train' ,action='store',type=int,help='train model'    )
 pars.add_argument('--trnm'  ,action='store',type=int,help='train mass'     )
@@ -15,15 +15,15 @@ pars.add_argument('--trnl'  ,action='store',type=int,help='train life time')
 pars.add_argument('--tstl'  ,action='store',type=int,help='test life time' )
 pars.add_argument('--attr'  ,action='store',type=str,help='attribute'      )
 
-args   = pars.parse_args()
-kin    = args.kin
-inputs = args.inputs
-train  = args.train
-trnm   = args.trnm
-tstm   = args.tstm
-trnl   = args.trnl
-tstl   = args.tstl
-attr   = args.attr
+args     = pars.parse_args()
+kin      = args.kin
+inputs   = args.inputs
+train_on = args.train
+trnm     = args.trnm
+tstm     = args.tstm
+trnl     = args.trnl
+tstl     = args.tstl
+attr     = args.attr
 print 'train: ', trnm
 print 'test: ' , tstm
 
@@ -32,15 +32,10 @@ massL  = []
 if tstm  :    massL.append(int(tstm))
 #else     :    massL.append(50)
 if tstl  :    ctauSL.append(int(tstl))
-else     :    ctauSL.append(500)
+#else     :    ctauSL.append(500)
 
 if inputs:    bdt_modelL = inputs
-else     :    bdt_modelL = '2best'#'full'
-if kin   :    attrKin    = kin
-else     :    attrKin    = 0 # pt,mass,energy__on
-
-if train :    train_on   = train
-else     :    train_on   = 0
+#else     :    bdt_modelL = '2best'#'full'
 
 version        = 0 # 0:testing
 selectionOn    = 1
@@ -49,17 +44,17 @@ selectionOn    = 1
 if trnm  :    M_train    = int(trnm)
 #else     :    M_train    = 40
 if trnl  :    CT_train   = int(trnl)
-else     :    CT_train   = 500
+#else     :    CT_train   = 500
 M_test_fix     = M_train       
 CT_test_fix    = CT_train
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Do not change the order!
 dsc = []
 dsc.append('trn_'     + str(M_train)    + 'GeV_' + str(CT_train)    + 'mm')
-dsc.append('tst_'     + str(massL[0])   + 'GeV_' + str(CT_test_fix) + 'mm')
+dsc.append('tst_'     + str(massL[0])   + 'GeV_' + str(ctauSL[0])   + 'mm')
 dsc.append('Selected' + str(selectionOn)                                  )
 dsc.append(bdt_modelL                                                     )
-dsc.append('kin'      + str(attrKin)                                      )
+dsc.append('kin'      + kin                                               )
 dsc.append('v'        + str(version)                                      )
 #dsc.append(attr compare_ctau compare_masses)
 descrStr       = '_'.join(dsc) 
@@ -69,7 +64,7 @@ pth_out        = '/beegfs/desy/user/hezhiyua/LLP/bdt_output/result/Lisa/bdt_over
 if   bdt_modelL == 'full':
     attrA = ['J1cHadEFrac','J1nHadEFrac','J1nEmEFrac','J1cEmEFrac','J1cmuEFrac','J1muEFrac','J1eleEFrac','J1eleMulti','J1photonEFrac','J1photonMulti','J1cHadMulti','J1nHadMulti','J1npr','J1cMulti','J1nMulti','J1nSelectedTracks','J1ecalE']
 elif bdt_modelL == '2best':
-    attrA = ['J1nSelectedTracks','J1photonMulti']#['J1cHadEFrac']#['J1nSelectedTracks']
+    attrA = ['J1nSelectedTracks','J1photonMulti']#['J1cHadEFrac']
 if attr:
     attrA.append(attr)
 print '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Attributes: ', attrA
@@ -79,7 +74,6 @@ subd_N_list    = []
 subd_N_list.append(dsc[2])
 subd_N_list.append(dsc[3])
 subd_N_list.append(dsc[4])
-#subd_N_list.append()
 subdir         = '_'.join(subd_N_list)
 path_result    = pth_out + '/' + subdir + '/'
 if not os.path.isdir(path_result):    os.system('mkdir '+path_result)
@@ -160,7 +154,7 @@ def setParams(**pp):
 	       'xs'                            : { '50to100': 246300000 , '100to200': 28060000 , '200to300': 1710000 , '300to500': 351300 , '500to700': 31630 , '700to1000': 6802 , '1000to1500': 1206 , '1500to2000': 120.4 , '2000toInf': 25.25 , 'sgn': 3.782 },
 	       'kinList'                       : ['pt','mass','energy'],
 	       'attrAll'                       : pp['attrAll'],
-	       'attributeKin'                  : attrKin,
+	       'attributeKin'                  : kin,
 	       #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Hyper_Parameters
 	       #-----------------------fcnn
 	       #hypr_model
@@ -212,6 +206,7 @@ def train_model():
 		       maxDataLoadCut   = p['maxDataLoadCut']  ,\
 		       test_mode=0 
                      )
+    #result['ctau'][CT_train]  = mainF(vdpar)
     result['masses'][M_train] = mainF(vdpar)
     result['info']            = vdpar
 
@@ -247,10 +242,10 @@ def lifeTime_compare(ctauL_l,load_root=1):
                            mass              = M_test_fix           ,\
                            random_seed       = sd                   ,\
                            train_test_ratio  = p['train_test_ratio'],\
-                           bkg_test_multiple = 60000                ,\
-                           bkg_multiple      = 8000                 ,\
+                           N_bkg_to_test     = p['N_bkg_to_test']   ,\
+                           N_bkg_to_train    = p['N_bkg_to_train']  ,\
                            maxDataLoadCut    = p['maxDataLoadCut']  ,\
-                           N_sgn             = n_sgn 
+                           test_mode=1
                          )
         result['ctau'][cti] = mainF(vdpar)
 

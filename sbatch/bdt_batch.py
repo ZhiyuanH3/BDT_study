@@ -15,14 +15,18 @@ pars   = argparse.ArgumentParser()
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> flags from submit.py
 pars.add_argument('--trnm'   ,action='store',type=str,help='train mass')
 pars.add_argument('--tstm'   ,action='store',type=str,help='test mass' )
+pars.add_argument('--trnl'   ,action='store',type=str,help='train life time')
+pars.add_argument('--tstl'   ,action='store',type=str,help='test life time' )
 pars.add_argument('--train'  ,action='store',type=str,help='train model')
 pars.add_argument('--kin'    ,action='store',type=str,help='kinematics'  )
 pars.add_argument('--inputs' ,action='store',type=str,help='model inputs')
-#[100,500,1000,2000,5000]
+
 args        = pars.parse_args()
 
 trnm        = args.trnm
 tstm        = args.tstm
+trnl        = args.trnl
+tstl        = args.tstl
 train       = args.train
 kin         = args.kin
 inputs      = args.inputs
@@ -31,37 +35,53 @@ path        = '/home/hezhiyua/desktop/BDT_study/'
 script_name = 'bdtTrain_new_test.py' 
 main_str    = 'python '+path+script_name
 
-mm          = 40#60
-combi_str   = ' --kin '+kin+' --inputs '+inputs
+test        = 1
+
+ll          = 500#    500#5000#2000#1000#[100,500,1000,2000,5000]
+mm          = 40#    60#50#30#20#60#40#30#20#40#60
+
+if test == 0:
+    combi_str   = ' --kin '+kin+' --inputs '+inputs
+
+if test == 0:
+    
+    """
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Training Mode:
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>> whether to train bdt:
+    fix_str     = ' --train '+'1'
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> choose which trained model:
+    train_str   = ' --trnm '+str(mm) + ' --trnl '+str(ll)
+    train_str   = train_str+' --tstm '+str(mm) + ' --tstl '+str(ll)    
+    """
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Tesging Mode:
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>> whether to train bdt:
+    fix_str     = ' --train '+'0'
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> choose which trained model:
+    train_str   = ' --trnm '+str(mm) + ' --trnl '+str(ll)
+    # for testing mass
+    train_str   = train_str+' --tstm '+str(tstm) + ' --tstl '+str(ll)
+    # for testing life time
+    #train_str   = train_str+' --tstm '+str(mm) + ' --tstl '+str(tstl)
+    #"""
+
+if test == 0:
+    act(main_str+fix_str    +    train_str+combi_str)
 
 
-# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Training Mode:
-# >>>>>>>>>>>>>>>>>>>>>>>>>>>>> whether to train bdt:
-#fix_str     = ' --train '+'1'
-# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> choose which trained model:
-#train_str   = ' --trnm '+str(mm)
-#train_str   = train_str+' --tstm '+str(mm)
-
-
-
-# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Tesging Mode:
-# >>>>>>>>>>>>>>>>>>>>>>>>>>>>> whether to train bdt:
-fix_str     = ' --train '+'0'
-# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> choose which trained model:
-train_str   = ' --trnm '+str(mm)
-train_str   = train_str+' --tstm '+str(tstm)
 
 
 
 
 
-act(main_str+fix_str    +    train_str+combi_str)
+
 
 # single test
-#act(main_str+fix_str    +    ' --trnm 20 --tstm 40 --kin 1 --inputs 2best')
-
-
-
+if test == 1:
+    fix_str     = ' --train '+'0'#'1'
+    #act(main_str+fix_str    +    ' --trnm 40 --tstm 40 --trnl 1000 --tstl 1000 --kin 1 --inputs 2best')
+    #act(main_str+fix_str    +    ' --trnm 40 --tstm 40 --trnl 500 --tstl 1000 --kin 1 --inputs 2best')
+    #act(main_str+fix_str    +    ' --trnm 40 --tstm 50 --trnl 500 --tstl 500 --kin 0 --inputs 2best') 
+    act(main_str+fix_str    +    ' --trnm 30 --tstm 50 --trnl 500 --tstl 500 --kin 0 --inputs 2best')
 
 
 

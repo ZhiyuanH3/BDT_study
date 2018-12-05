@@ -4,7 +4,7 @@
 #SBATCH --job-name=mtp
 #SBATCH --time=01:00:00
 #SBATCH --nodes=1
-
+#SBATCH -c 70
 #SBATCH --output /home/hezhiyua/logs/mtp-%j.out
 #SBATCH --error  /home/hezhiyua/logs/mtp-%j.err
 #SBATCH --mail-type END
@@ -13,22 +13,24 @@
 #!/bin/python2.7
 #SBATCH --exclusive
 """
-import multiprocessing as mp
+import multiprocessing   as mp
 import sys
 import os
-from   time import time as tm
+from   time import time  as tm
+from   time import sleep as slp
 # necessary to add cwd to path when script run 
 # by slurm (since it executes a copy)
 sys.path.append(os.getcwd()) 
 
-LL = range(100000000)
+LL = range(1000)#(10000000)
 
 
 
 ll = []
 def work(x):
+    slp(0.0001)
     #print x*2
-    return x*2
+    #return x*2
 
 
 
@@ -44,11 +46,23 @@ print '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>#cpu: ', str(ncpus)
 
 
 
-
+"""
 A=tm()
-p.map(work, LL)
+p.map(work, LL, )
 B=tm()
 print '>>>>>>>>>>>>>>>>>>>>>>>> Time: ', str(B-A)
+"""
+
+
+
+A=tm()
+for i in LL:
+    p.apply_async(work, args=(i,))
+p.close()
+p.join()
+B=tm()
+print '>>>>>>>>>>>>>>>>>>>>>>>> Time: ', str(B-A)
+
 
 
 
