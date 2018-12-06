@@ -35,17 +35,17 @@ path        = '/home/hezhiyua/desktop/BDT_study/'
 script_name = 'bdtTrain_new_test.py' 
 main_str    = 'python '+path+script_name
 
-test        = 1
+test        = 0#1
 
-ll          = 500#    500#5000#2000#1000#[100,500,1000,2000,5000]
-mm          = 40#    60#50#30#20#60#40#30#20#40#60
+ll          = 500#[100,500,1000,2000,5000]
+mm          = 60#50#40    
 
 if test == 0:
     combi_str   = ' --kin '+kin+' --inputs '+inputs
 
 if test == 0:
     
-    """
+    #"""
     # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Training Mode:
     # >>>>>>>>>>>>>>>>>>>>>>>>>>>>> whether to train bdt:
     fix_str     = ' --train '+'1'
@@ -62,7 +62,7 @@ if test == 0:
     train_str   = train_str+' --tstm '+str(tstm) + ' --tstl '+str(ll)
     # for testing life time
     #train_str   = train_str+' --tstm '+str(mm) + ' --tstl '+str(tstl)
-    #"""
+    """
 
 if test == 0:
     act(main_str+fix_str    +    train_str+combi_str)
@@ -81,10 +81,10 @@ if test == 1:
     #act(main_str+fix_str    +    ' --trnm 40 --tstm 40 --trnl 1000 --tstl 1000 --kin 1 --inputs 2best')
     #act(main_str+fix_str    +    ' --trnm 40 --tstm 40 --trnl 500 --tstl 1000 --kin 1 --inputs 2best')
     #act(main_str+fix_str    +    ' --trnm 40 --tstm 50 --trnl 500 --tstl 500 --kin 0 --inputs 2best') 
-    act(main_str+fix_str    +    ' --trnm 30 --tstm 50 --trnl 500 --tstl 500 --kin 0 --inputs 2best')
-
-
-
-
-
+    #act(main_str+fix_str    +    ' --trnm 30 --tstm 50 --trnl 500 --tstl 500 --kin 0 --inputs 2best')
+    #act(main_str+fix_str    +    ' --trnm 30 --tstm 40 --trnl 500 --tstl 500 --kin 0 --inputs full')
+    #act(main_str+fix_str    +    ' --trnm 60 --tstm 40 --trnl 500 --tstl 500 --kin 0 --inputs full')
+    #act(main_str+fix_str    +    ' --trnm 30 --tstm 20 --trnl 500 --tstl 500 --kin 1 --inputs full')
+    #act(main_str+fix_str    +    ' --trnm 40 --tstm 30 --trnl 500 --tstl 500 --kin 1 --inputs full')
+    act(main_str+fix_str    +    ' --trnm 60 --tstm 30 --trnl 500 --tstl 500 --kin 1 --inputs full')
 

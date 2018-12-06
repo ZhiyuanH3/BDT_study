@@ -99,10 +99,11 @@ def DecisionScores(model,X_tests,df_test_origin,p):
 def bdt_train(ps,X_Train,y_Train,W_train):
     #~~~~~~~~Create and fit an AdaBoosted decision tree
     clf = DecisionTreeClassifier(  max_depth = ps['max_depth']  )
-    bdt = AdaBoostClassifier(  clf,
-			       algorithm     = ps['algorithm'],
-			       n_estimators  = ps['n_estimators'],
-			       learning_rate = ps['learning_rate'],
+    bdt = AdaBoostClassifier(  
+                              clf                                ,\
+			      algorithm     = ps['algorithm']    ,\
+			      n_estimators  = ps['n_estimators'] ,\
+			      learning_rate = ps['learning_rate'],\
 			    )
     print '>>>>>>>>>>>>>>>>>>>>>>>>> Fitting BDT...'
     ti = timer()
@@ -117,24 +118,22 @@ def bdt_train(ps,X_Train,y_Train,W_train):
         os.system('mkdir '+pkl_path)
   
     dsc_str = ps['descr'][0] + '_' + '_'.join(ps['descr'][2:5])
-    pkl_path = pkl_path + '/' + dsc_str + '/'
-    if not os.path.isdir(pkl_path):
-        os.system('mkdir '+pkl_path)
-
-    joblib.dump(bdt, pkl_path+'/'+'bdt.pkl')
+    #pkl_path = pkl_path + '/' + dsc_str + '/'
+    #if not os.path.isdir(pkl_path):
+    #    os.system('mkdir '+pkl_path)
+    joblib.dump(bdt, pkl_path+'/'+'bdt_'+dsc_str+'.pkl')
  
 
 def bdt_test(X_Test,y_Test,W_test,df_Test_orig,ps):
     print '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Loading BDT-Model...'
-    dsc_str = ps['descr'][0] + '_' + '_'.join(ps['descr'][2:5])
-    pkl_path = ps['path_result'] + '/' + 'save_model' + '/' + dsc_str 
-    pkl_path = pkl_path+'/'+'bdt.pkl'
-    bdt = joblib.load(pkl_path)
-    if ps['calcROCon'] == 1:
-       roc_dict = DecisionScores(bdt,X_Test,df_Test_orig,ps)
-    y_pred_proba_bdt                 = bdt.predict_proba(X_Test)[:,1]
-    fpr_bdt, tpr_bdt, thresholds_bdt = metrics.roc_curve(y_Test, y_pred_proba_bdt, sample_weight=W_test)
-    auc_bdt                          = metrics.roc_auc_score(y_Test, y_pred_proba_bdt, sample_weight=W_test)
+    dsc_str  = ps['descr'][0] + '_' + '_'.join(ps['descr'][2:5])
+    pkl_path = ps['path_result'] + '/' + 'save_model' #+ '/' + dsc_str 
+    pkl_path = pkl_path+'/'+'bdt_'+dsc_str+'.pkl'
+    bdt      = joblib.load(pkl_path)
+    if ps['calcROCon'] == 1:    roc_dict = DecisionScores(bdt,X_Test,df_Test_orig,ps)
+    y_pred_proba_bdt                     = bdt.predict_proba(X_Test)[:,1]
+    fpr_bdt, tpr_bdt, thresholds_bdt     = metrics.roc_curve(y_Test, y_pred_proba_bdt, sample_weight=W_test)
+    auc_bdt                              = metrics.roc_auc_score(y_Test, y_pred_proba_bdt, sample_weight=W_test)
     print '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> AUC_bdt: ', auc_bdt
     out_dict                   = {}
     out_dict['aoc']            = auc_bdt
@@ -146,10 +145,8 @@ def bdt_test(X_Test,y_Test,W_test,df_Test_orig,ps):
 
 
 def bdt_main(PS,X_Trains,X_Tests,y_Trains,y_Tests,W_trains,W_tests,df_Test_origs,pklNames):
-    if   PS['trainOn'] == 1:
-        bdt_train(PS,X_Trains,y_Trains,W_trains,pklNames)
-    elif PS['trainOn'] == 0:
-        out_dict = bdt_test(X_Tests,y_Tests,W_tests,df_Test_origs,PS)
+    if   PS['trainOn'] == 1:    bdt_train(PS,X_Trains,y_Trains,W_trains,pklNames)
+    elif PS['trainOn'] == 0:    out_dict = bdt_test(X_Tests,y_Tests,W_tests,df_Test_origs,PS)
     return out_dict
 
 

@@ -1,17 +1,14 @@
-import func   as fc
-import pandas as pd
-import numpy  as np
+import os
+import func                as fc
+import pandas              as pd
+import numpy               as np
 import root_numpy
-from ROOT    import TFile
-from sklearn import utils
-
-from ROOT import TGraphAsymmErrors as GAE
-from ROOT import TH1F
-from ROOT import Double
-
-###############
-#             #
-###############
+from ROOT              import TFile
+from sklearn           import utils
+from sklearn.externals import joblib
+from ROOT              import TGraphAsymmErrors as GAE
+from ROOT              import TH1F
+from ROOT              import Double
 
 ###############
 #             #
@@ -95,24 +92,40 @@ def SetCrossSection(inst,xs):
 ###############
 #             #
 ###############
-def LoadData(name_dict, setWeight=False, mainTree='tree44', thrsd=1000000):
+def LoadData(ps, name_dict, setWeight=False, mainTree='tree44', thrsd=1000000):
     df_dict     = {}
     N_dict      = {}
     N_available = 0
     for w in name_dict:    
-        fn        = name_dict[w].fullName
-        fb        = TFile(fn,"r")
-        print '................................loading tree'
-        tree      = fb.Get(mainTree) 
-        nevents   = tree.GetEntries()
-        N_dict[w] = nevents
-        if nevents > thrsd:    N_dict[w] = thrsd 
-        print "number of events: " + str(nevents)
-        print str(N_dict[w]) + ' loaded..'
-        print '................................tree loaded'
-        #~~~~~~~~set up DataFrames
-        print '................................loading data'
-        df_dict[w] = pd.DataFrame( root_numpy.root2array(fn, treename=mainTree, start=0, stop=N_dict[w]) ) 
+        descrStr    = ps['descr'][2] + '_' + ps['descr'][5]
+        preload_pth = ps['path']+'/'+ps['loadedDatas_dir']+'/'+'preload_'+descrStr+'_'+w+'.pkl'
+        if os.path.isfile(preload_pth):    
+            in_dict   = joblib.load(preload_pth)
+            nevents   = in_dict['N']
+            N_dict[w] = nevents
+            if nevents > thrsd:    N_dict[w] = thrsd 
+            print "number of events: " + str(nevents)
+            print str(N_dict[w]) + ' loaded..'
+            print '................................loading data'
+            df_dict[w] = in_dict['df']
+        else                          :    
+            out_dict      = {}
+            fn            = name_dict[w].fullName
+            fb            = TFile(fn,"r")
+            print '................................loading tree'
+            tree          = fb.Get(mainTree) 
+            nevents       = tree.GetEntries()
+            N_dict[w]     = nevents
+            out_dict['N'] = nevents
+            if nevents > thrsd:    N_dict[w] = thrsd 
+            print "number of events: " + str(nevents)
+            print str(N_dict[w]) + ' loaded..'
+            print '................................tree loaded'
+            #~~~~~~~~set up DataFrames
+            print '................................loading data'
+            df_dict[w]     = pd.DataFrame( root_numpy.root2array(fn, treename=mainTree, start=0, stop=N_dict[w]) ) 
+            out_dict['df'] = df_dict[w]
+            joblib.dump(out_dict, preload_pth)
         print '................................data completely loaded'
         if   name_dict[w].dataType == 'QCD':    df_dict[w]['is_signal'] = 0 
         elif name_dict[w].dataType == 'SGN':    df_dict[w]['is_signal'] = 1
@@ -123,6 +136,7 @@ def LoadData(name_dict, setWeight=False, mainTree='tree44', thrsd=1000000):
         df_dict[w]   = df_dict[w][:][dropone]
         #~~~~~~~~get features
         N_available  = N_available + nevents
+  
     return df_dict, N_dict, N_available
 
 
@@ -149,21 +163,20 @@ def getColumnLabel(DF,refLab='_'):
 ###############
 
 # specify a number to train for qcd:
-def SplitDataNew(df_bkg_dict       ,\
-                 df_sig            ,\
-                 N_bkg_dict        ,\
-                 bkg_name_dict     ,\
-                 xs                ,\
-                 N_bkg_to_test     ,\
-                 N_bkg_to_train    ,\
-                 N_available_bkg   ,\
-                 N_available_sgn   ,\
-                 train_test_ratio  ,\
-                 random_seed       ,\
-                 
+def SplitDataNew(df_bkg_dict         ,\
+                 df_sig              ,\
+                 N_bkg_dict          ,\
+                 bkg_name_dict       ,\
+                 xs                  ,\
+                 N_bkg_to_test       ,\
+                 N_bkg_to_train      ,\
+                 N_available_bkg     ,\
+                 N_available_sgn     ,\
+                 train_test_ratio    ,\
+                 random_seed         ,\
                  Thrsd     = 300000  ,\
                  weightL   = 'weight',\
-                 test_mode = 0):
+                 test_mode = 0         ):
 
     N_bkg_to_test_dict  = {}
     N_bkg_to_train_dict = {}
@@ -173,14 +186,13 @@ def SplitDataNew(df_bkg_dict       ,\
 
     train_test_cut_ratio  = 0.15#0.5
 
-    #calculate the total cross section
-    for w in bkg_name_dict:
-        tot_xs += xs[w]
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>> Calculate the total cross section:
+    for w in bkg_name_dict:    tot_xs += xs[w]
     #print '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>total cross section: ', str(tot_xs)
     
     thrd   = N_bkg_to_test + N_bkg_to_train 
  
-    #check if number of background events is enough 
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Check if number of background events is enough 
     if N_available_bkg >= thrd:
 
         N_sgn_to_train        = int( N_available_sgn * train_test_ratio )
@@ -200,7 +212,7 @@ def SplitDataNew(df_bkg_dict       ,\
         N_taken_train        = 0       
         N_taken_test         = 0
         for w in bkg_name_dict:   
-            #if #background from a specific HT bin is smaller than Thrsd, take all the events in that bin 
+            # If #background from a specific HT bin is smaller than Thrsd, take all the events in that bin 
             if N_bkg_dict[w] < Thrsd: 
                 N_taken_train            += int(N_bkg_dict[w]*train_test_cut_ratio)
                 N_taken_test             += int(N_bkg_dict[w]*(1-train_test_cut_ratio))  
@@ -222,42 +234,42 @@ def SplitDataNew(df_bkg_dict       ,\
 
         for w in bkg_name_dict:
             if N_bkg_dict[w] >= Thrsd:
-                #decide how many events should be used(train and test): proportional to the relative portion of a specificHT bin out of the total #available background events
+                # Decide how many events should be used(train and test): proportional to the relative portion of a specificHT bin out of the total #available background events
                 N_bkg_to_test_dict[w]     = int(  int(N_bkg_dict[w]*(1-train_test_cut_ratio)) * ( N_to_take_test/float(N_available_test_bkg_left) )  )         
                 N_bkg_to_train_dict[w]    = int(  int(N_bkg_dict[w]*train_test_cut_ratio) * ( N_to_take_train/float(N_available_train_bkg_left) )  )
 
 
             if N_bkg_to_train_dict[w] == 0:
-                #error prompt if the relative portion of the HT bin is too small
+                # Error prompt if the relative portion of the HT bin is too small
                 print '>>>>>>Zero division>>>>Please check if number of higher HT QCD-samples are too large?'
                 N_bkg_to_train_dict[w]    = int( N_bkg_dict[w] * train_test_ratio )
             #if N_bkg_to_use_dict[w]   == 0:
             #    N_bkg_to_use_dict[w]      = N_bkg_dict[w]
 
-            #add a 'weight' column to the dataframe
-            df_bkg_test_dict[w][weightL]    = 0   #add weight column
-            df_bkg_train_dict[w][weightL]   = 0   #add weight column 
-            #add weights to cope with the relative cross section and to compensate the number of events being used for training
-            df_bkg_train_dict[w].loc[:N_bkg_to_train_dict[w],[weightL]]   = xs[w] / float( N_bkg_to_train_dict[w] * tot_xs  )   #add to weight column
-            df_bkg_test_dict[w].loc[:N_bkg_to_test_dict[w],[weightL]]     = xs[w] / float( N_bkg_to_test_dict[w] * tot_xs  )   #add to weight column
+            # Add a 'weight' column to the dataframe
+            df_bkg_test_dict[w][weightL]    = 0   # Add weight column
+            df_bkg_train_dict[w][weightL]   = 0   # Add weight column 
+            # Add weights to cope with the relative cross section and to compensate the number of events being used for training
+            df_bkg_train_dict[w].loc[:N_bkg_to_train_dict[w],[weightL]]   = xs[w] / float( N_bkg_to_train_dict[w] * tot_xs  )   # Add to weight column
+            df_bkg_test_dict[w].loc[:N_bkg_to_test_dict[w],[weightL]]     = xs[w] / float( N_bkg_to_test_dict[w] * tot_xs  )   # Add to weight column
             
             df_bkg_train_list.append( df_bkg_train_dict[w][ : N_bkg_to_train_dict[w] ] )
             df_bkg_test_list.append(  df_bkg_test_dict[w][  : N_bkg_to_test_dict[w]  ] )
   
-        #combine all HT bins
+        # Combine all HT bins
         df_bkg              = pd.concat( df_bkg_train_list , ignore_index=True )
         df_test_bkg         = pd.concat( df_bkg_test_list , ignore_index=True )
-        #~~~~~~~~Fixing random state for reproducibility
-        #shuffle the events
+        # ~~~~~~~~ Fixing random state for reproducibility
+        # Shuffle the events
         np.random.seed(random_seed)                     
         df_bkg              = df_bkg.iloc[np.random.permutation(len(df_bkg))]
         df_test_bkg         = df_test_bkg.iloc[np.random.permutation(len(df_test_bkg))]
-        #~~~~~~~~set up data split
+        # ~~~~~~~~ Set up data split
         if   test_mode == 1:
             #if in test mode: use all available signal events
             df_sig[weightL]                  = 1 / float(N_available_sgn)#( N_sgn_av )
             df_test_sig                      = df_sig[:]
-            df_sig                           = df_sig[:] #only there for the return: should not be used!!
+            df_sig                           = df_sig[:] # Only there for the return: should not be used!!
         elif test_mode == 0:
             #if in train mode: split up the data for training and testing
             df_sig[weightL]                      = 0
@@ -290,21 +302,22 @@ def SplitDataNew(df_bkg_dict       ,\
 ###############
 #   carefull  #
 ###############
-def SplitData_New(df_bkg_dict       ,\
-                 df_sig            ,\
-                 N_bkg_dict        ,\
-                 bkg_name_dict     ,\
-                 xs                ,\
-                 bkg_test_multiple ,\
-                 bkg_multiple      ,\
-                 N_available_bkg   ,\
-                 N_available_sgn   ,\
-                 train_test_ratio  ,\
-                 random_seed       ,\
-                 #Thrsd   = 50000   ,\
-                 Thrsd   = 300000,\
-                 weightL = 'weight',\
-                 N_available_sgn_model = 0):
+def SplitData_New(
+                   df_bkg_dict       ,\
+                   df_sig            ,\
+                   N_bkg_dict        ,\
+                   bkg_name_dict     ,\
+                   xs                ,\
+                   bkg_test_multiple ,\
+                   bkg_multiple      ,\
+                   N_available_bkg   ,\
+                   N_available_sgn   ,\
+                   train_test_ratio  ,\
+                   random_seed       ,\
+                   #Thrsd   = 50000   ,\
+                   Thrsd   = 300000  ,\
+                   weightL = 'weight',\
+                   N_available_sgn_model = 0):
     N_bkg_to_use_dict   = {}
     N_bkg_to_train_dict = {}
     df_bkg_test_list    = []

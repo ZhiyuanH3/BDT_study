@@ -21,13 +21,9 @@ def LoadData_main(kwargs):
 
     def root_name_bkg_gen(x): return p['qcdPrefix']+x+'_'+p['versionN_b']+'_'+str(p['num_of_jets'])+tail
 
-    for stri in HTL1:
-        bkg_name_dict[stri]  = id.DataFile(root_name_bkg_gen(stri), p['path'])
-
+    for stri in HTL1:    bkg_name_dict[stri]  = id.DataFile(root_name_bkg_gen(stri), p['path'])
     if p['selectedSample'] == 1:
-        for stri in HTL2:
-            #if 1: continue
-            bkg_name_dict[stri]  = id.DataFile(root_name_bkg_gen(stri), p['path'])
+        for stri in HTL2:    bkg_name_dict[stri]  = id.DataFile(root_name_bkg_gen(stri), p['path'])
 
     key_str_sgn                = 'MS'+str(p['sgn_mass'])+'ct'+str(p['sgn_ctauS'])
     root_name_sgn = p['sgnPrefix']+str(p['sgn_mass'])+'_ctauS-'+ str(p['sgn_ctauS'])+'_'+p['versionN_s']+'_'+str(p['num_of_jets'])+tail
@@ -35,10 +31,12 @@ def LoadData_main(kwargs):
 
 
     timeA = timer()
-    
     id.SetCrossSection(bkg_name_dict, p['xs'])
-    df_bkg_dict, N_bkg_dict, N_available_bkg = id.LoadData(bkg_name_dict,setWeight=True ,thrsd=p['maxDataLoadCut'])
-    df_sgn_dict, N_sgn_dict, N_available_sgn = id.LoadData(sgn_name_dict,setWeight=False,thrsd=p['maxDataLoadCut'])
+    #df_bkg_dict, N_bkg_dict, N_available_bkg = id.LoadData(bkg_name_dict,setWeight=True ,thrsd=p['maxDataLoadCut'])
+    #df_sgn_dict, N_sgn_dict, N_available_sgn = id.LoadData(sgn_name_dict,setWeight=False,thrsd=p['maxDataLoadCut'])
+    df_bkg_dict, N_bkg_dict, N_available_bkg = id.LoadData(p,bkg_name_dict,setWeight=True ,thrsd=p['maxDataLoadCut'])
+    df_sgn_dict, N_sgn_dict, N_available_sgn = id.LoadData(p,sgn_name_dict,setWeight=False,thrsd=p['maxDataLoadCut'])
+
     print '#available background: ',    N_available_bkg
     print '#available signal: '    ,    N_available_sgn
     
@@ -72,8 +70,8 @@ def LoadData_main(kwargs):
     ColumnLabelDict, ColumnLabelDict_sk, JetPrfx = id.getColumnLabel(df_test_orig)
     print ColumnLabelDict_sk
     
-    df_train = np.asarray(df_train)
-    df_test = np.asarray(df_test_orig)
+    df_train       = np.asarray(df_train)
+    df_test        = np.asarray(df_test_orig)
     isSigPos       = ColumnLabelDict[p['isSigL']]
     weightPos      = ColumnLabelDict[p['weightL']]
 
@@ -94,14 +92,16 @@ def LoadData_main(kwargs):
     pkls['df_test_orig'] = df_test_orig
     pkls['out_dict']     = out_dict
  
-    dump_pth = p['path']+'/loadedDatas/'+'preloaded_data'+'_ctauS'+str(p['sgn_ctauS'])+'_M'+str(p['sgn_mass'])+'.pkl'
+    """
+    descrStr       = '_'.join(p['descr'])
+    dump_pth = p['path']+'/'+p['loadedDatas_dir']+'/'+'preload_'+descrStr+'_forTrain'+str(p['bdtTrainOn'])+'.pkl'
     joblib.dump(pkls, dump_pth)
-
     timeC = timer()
-    print 'Time taken for loading datas from ROOT: ', str(timeB-timeA), 'sec'
-    print 'Time taken for dumping datas to pkl: '   , str(timeC-timeB), 'sec'
+    """
+    print 'Time for loading datas from ROOT: ', str(timeB-timeA), 'sec'
+    #print 'Time for dumping datas to pkl: '   , str(timeC-timeB), 'sec'
 
-
+    return pkls
 
 
 

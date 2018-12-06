@@ -72,12 +72,12 @@ for i in flags['tstl']['list']:
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Training Mode:
 #"""
-act(main_str+' --kin'+' 0'+' --inputs'+' 2best')
-slp(wait_time)
+#act(main_str+' --kin'+' 0'+' --inputs'+' 2best')
+#slp(wait_time)
 act(main_str+' --kin'+' 0'+' --inputs'+' full' )
 slp(wait_time)
-#act(main_str+' --kin'+' 1'+' --inputs'+' 2best')
-#slp(wait_time)
+act(main_str+' --kin'+' 1'+' --inputs'+' 2best')
+slp(wait_time)
 act(main_str+' --kin'+' 1'+' --inputs'+' full' )
 #slp(wait_time)
 #"""

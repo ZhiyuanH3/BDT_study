@@ -1,3 +1,4 @@
+import os 
 import init_data         as id
 import pandas            as pd
 import numpy             as np
@@ -21,25 +22,27 @@ def mainF(kwargs):
     print '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Parameters are:'
     for k,v in p.items():    print("{0} = {1}".format(k,v))
     
-
     RefA    = 'J1pt'
 
     if p['attributeKin']   == 1:    p['attrAll'] += id.nKinListGen(p['num_of_jets'], p['kinList'])
-    if p['load_from_root'] == 1:    LoadData_main( p )
-
-
-
+    if p['load_from_root'] == 1:    pkls          = LoadData_main( p )
+    
+    df_train     = pkls['df_train'] 
+    df_test      = pkls['df_test'] 
+    df_test_orig = pkls['df_test_orig'] 
+    in_dict      = pkls['out_dict'] 
+    """
     timeA        = timer()
-
-
-    load_pth     = p['path']+'/loadedDatas/'+'preloaded_data'+'_ctauS'+str(p['sgn_ctauS'])+'_M'+str(p['sgn_mass'])+'.pkl'
+    descrStr     = '_'.join(p['descr'])
+    load_pth     = p['path']+'/'+p['loadedDatas_dir']+'/'+'preload_'+descrStr+'_forTrain'+str(p['bdtTrainOn'])+'.pkl'
     pkls         = joblib.load( load_pth ) 
     df_train     = pkls['df_train'] 
     df_test      = pkls['df_test'] 
     df_test_orig = pkls['df_test_orig'] 
     in_dict      = pkls['out_dict']   
     timeB        = timer()
-    print 'Time taken for loading datas from pkl: ', str(timeB-timeA), 'sec'
+    print 'Time for loading datas: ', str(timeB-timeA), 'sec'
+    """
 
     ColumnLabelDict    = in_dict['ColumnLabelDict']  
     ColumnLabelDict_sk = in_dict['ColumnLabelDict_sk']
@@ -48,11 +51,11 @@ def mainF(kwargs):
     weightPos          = in_dict['weightPos']    
     JetPrfx            = in_dict['JetPrfx']         
     #--------------------------Benchmark--------------------------------
-    LCL                       = p['cut_base']['LCL'] 
-    HCL                       = p['cut_base']['HCL']
+    LCL                       = p['cut_base']['LC'] 
+    HCL                       = p['cut_base']['HC']
     cutBaseDict               = {}
-    cutBaseDict['Loose Cut']  = id.CutBaseBenchmarkNew(df_test_orig, LCL, JetPrfx, RefA, p['isSigL'])
-    cutBaseDict['Hard Cut' ]  = id.CutBaseBenchmarkNew(df_test_orig, HCL, JetPrfx, RefA, p['isSigL'])
+    cutBaseDict['loose_cut']  = id.CutBaseBenchmarkNew(df_test_orig, LCL, JetPrfx, RefA, p['isSigL'])
+    cutBaseDict['hard_cut' ]  = id.CutBaseBenchmarkNew(df_test_orig, HCL, JetPrfx, RefA, p['isSigL'])
     #--------------------------Benchmark--------------------------------        
     allAttrList    = id.CountAttrInList(ColumnLabelDict_sk, p['attrAll'])
     # ~~~~~~~~Take in all the attributes info
@@ -75,11 +78,6 @@ def mainF(kwargs):
                             ps           = p 
                           )
     output_dict['cut_based'] = cutBaseDict        
-    #output_dict = bdt_main(PS=p, X_Trains=X_train, X_Tests=X_test, y_Trains=y_train, y_Tests=y_test, W_trains=w_train, W_tests=w_test, df_Test_origs=df_test_orig)
-    #~~~~~~~~plot roc-curve
-    ############################
-    if p['plotOn']:
-        pass
-    ############################
 
+    #os.system('rm '+load_pth)
     return output_dict
