@@ -128,7 +128,7 @@ def setParams(**pp):
 	       'xs'                            : { '50to100': 246300000 , '100to200': 28060000 , '200to300': 1710000 , '300to500': 351300 , '500to700': 31630 , '700to1000': 6802 , '1000to1500': 1206 , '1500to2000': 120.4 , '2000toInf': 25.25 , 'sgn': 3.782 },
 	       'kinList'                       : ['pt','mass','energy'],
 	       'attrAll'                       : pp['attrAll'],
-	       'attributeKin'                  : kin,
+	       'attributeKin'                  : int(kin),
 	       #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Hyper_Parameters
 	       #-----------------------fcnn
 	       #hypr_model

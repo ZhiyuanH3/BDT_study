@@ -37,21 +37,28 @@ main_str    = 'python '+path+script_name
 
 test        = 0#1
 
-ll          = 500#[100,500,1000,2000,5000]
-mm          = 60#50#40    
+ll          = 500#5000#2000#1000#500#100#[100,500,1000,2000,5000]
+mm          = 60#50#40#30#20#40#60#40#60#50#40#30#20    
 
 if test == 0:
     combi_str   = ' --kin '+kin+' --inputs '+inputs
+else        :
+    combi_str   = ' --kin '+kin+' --inputs '+inputs
+
 
 if test == 0:
     
-    #"""
+    """
     # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Training Mode:
     # >>>>>>>>>>>>>>>>>>>>>>>>>>>>> whether to train bdt:
     fix_str     = ' --train '+'1'
     # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> choose which trained model:
-    train_str   = ' --trnm '+str(mm) + ' --trnl '+str(ll)
-    train_str   = train_str+' --tstm '+str(mm) + ' --tstl '+str(ll)    
+    train_str   = ' --trnm '+str(mm) + ' --trnl '+str(trnl)
+    train_str   = train_str+' --tstm '+str(mm) + ' --tstl '+str(trnl)    
+    #train_str   = ' --trnm '+str(trnm) + ' --trnl '+str(ll)
+    #train_str   = train_str+' --tstm '+str(trnm) + ' --tstl '+str(ll)    
+
+
     """
     # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Tesging Mode:
     # >>>>>>>>>>>>>>>>>>>>>>>>>>>>> whether to train bdt:
@@ -62,7 +69,7 @@ if test == 0:
     train_str   = train_str+' --tstm '+str(tstm) + ' --tstl '+str(ll)
     # for testing life time
     #train_str   = train_str+' --tstm '+str(mm) + ' --tstl '+str(tstl)
-    """
+    #"""
 
 if test == 0:
     act(main_str+fix_str    +    train_str+combi_str)
@@ -75,16 +82,24 @@ if test == 0:
 
 
 
+
+
+
+
+
+
 # single test
 if test == 1:
     fix_str     = ' --train '+'0'#'1'
-    #act(main_str+fix_str    +    ' --trnm 40 --tstm 40 --trnl 1000 --tstl 1000 --kin 1 --inputs 2best')
-    #act(main_str+fix_str    +    ' --trnm 40 --tstm 40 --trnl 500 --tstl 1000 --kin 1 --inputs 2best')
-    #act(main_str+fix_str    +    ' --trnm 40 --tstm 50 --trnl 500 --tstl 500 --kin 0 --inputs 2best') 
-    #act(main_str+fix_str    +    ' --trnm 30 --tstm 50 --trnl 500 --tstl 500 --kin 0 --inputs 2best')
-    #act(main_str+fix_str    +    ' --trnm 30 --tstm 40 --trnl 500 --tstl 500 --kin 0 --inputs full')
-    #act(main_str+fix_str    +    ' --trnm 60 --tstm 40 --trnl 500 --tstl 500 --kin 0 --inputs full')
-    #act(main_str+fix_str    +    ' --trnm 30 --tstm 20 --trnl 500 --tstl 500 --kin 1 --inputs full')
-    #act(main_str+fix_str    +    ' --trnm 40 --tstm 30 --trnl 500 --tstl 500 --kin 1 --inputs full')
-    act(main_str+fix_str    +    ' --trnm 60 --tstm 30 --trnl 500 --tstl 500 --kin 1 --inputs full')
+    #act(main_str+fix_str    +    ' --trnm 60 --tstm 50 --trnl 500 --tstl 500 '+combi_str)
+    #act(main_str+fix_str    +    ' --trnm 40 --tstm 50 --trnl 500 --tstl 500 '+combi_str)
+    #act(main_str+fix_str    +    ' --trnm 40 --tstm 60 --trnl 500 --tstl 500 '+combi_str)
+
+    #act(main_str+fix_str    +    ' --trnm 50 --tstm 20 --trnl 500 --tstl 500 '+combi_str)
+    #act(main_str+fix_str    +    ' --trnm 50 --tstm 30 --trnl 500 --tstl 500 '+combi_str)
+    act(main_str+fix_str    +    ' --trnm 50 --tstm 40 --trnl 500 --tstl 500 '+combi_str)
+
+
+
+
 

@@ -24,8 +24,9 @@ def mainF(kwargs):
     
     RefA    = 'J1pt'
 
-    if p['attributeKin']   == 1:    p['attrAll'] += id.nKinListGen(p['num_of_jets'], p['kinList'])
-    if p['load_from_root'] == 1:    pkls          = LoadData_main( p )
+    if int( p['attributeKin'] )   == 1:    p['attrAll'] += id.nKinListGen(p['num_of_jets'], p['kinList'])
+    #p['attrAll'] += id.nKinListGen(p['num_of_jets'], p['kinList'])
+    if int( p['load_from_root'] ) == 1:    pkls          = LoadData_main( p )
     
     df_train     = pkls['df_train'] 
     df_test      = pkls['df_test'] 
