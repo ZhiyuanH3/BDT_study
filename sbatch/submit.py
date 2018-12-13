@@ -8,140 +8,92 @@
 #SBATCH --mail-type END
 #SBATCH --mail-user zhiyuan.he@desy.de
 
-from os   import system as act
-from time import sleep  as slp
+from os    import system      as act
+from time  import sleep       as slp
+from combi import *
 
 flags                 = {}
-
+"""
 flags['trnm']         = {}
 flags['trnm']['flag'] = ' --trnm '
 flags['trnm']['list'] = [20,30,40,50,60]
+flags['trnl']         = {}
+flags['trnl']['flag'] = ' --trnl '
+flags['trnl']['list'] = [500,1000,2000,5000] 
+"""
 
 flags['tstm']         = {}
 flags['tstm']['flag'] = ' --tstm '
 flags['tstm']['list'] = [20,30,40,50,60] # range(15,65,5)
-
-flags['trnl']         = {}
-flags['trnl']['flag'] = ' --trnl '
-flags['trnl']['list'] = [100,500,1000,2000,5000] 
-
 flags['tstl']         = {}
 flags['tstl']['flag'] = ' --tstl '
-flags['tstl']['list'] = [100,500,1000,2000,5000]
-
-
-wait_time  = 20 # Seconds
-
-
-main_str   = 'sbatch bdt_batch.py '
-
-# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Testing Mode:
-#"""
-scan_typ   = 'tstm'
-skip_point = 60#50#40#30#20#60#50#40#30#20
-#scan_typ   = 'tstl'
-#skip_point = 5000#2000#1000#500#100
-
-for i in flags[scan_typ]['list']:
-
-    if i == skip_point: continue
-
-    fix_str = flags[scan_typ]['flag'] + str(i) 
-
-    #act(main_str+fix_str+' --kin'+' 0'+' --inputs'+' 2best')
-    #slp(wait_time)
-    #act(main_str+fix_str+' --kin'+' 0'+' --inputs'+' full' )
-    #slp(wait_time)
-    act(main_str+fix_str+' --kin'+' 1'+' --inputs'+' 2best')
-    slp(wait_time)
-    act(main_str+fix_str+' --kin'+' 1'+' --inputs'+' full' ) 
-    slp(wait_time) 
-#"""
+flags['tstl']['list'] = [500,1000,2000,5000]
 
 
 
+flags['inputs']         = {}
+flags['inputs']['flag'] = ' --inputs '
+flags['inputs']['list'] = ['full']#['2best','full']
+
+flags['kin']            = {}
+flags['kin']['flag']    = ' --kin '
+flags['kin']['list']    = [0]#[0,1]
 
 
+wait_time = 20 # Seconds
+main_str  = 'sbatch bdt_batch.py '
 
-# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Training Mode:
-"""
-act(main_str+' --kin'+' 0'+' --inputs'+' 2best')
-slp(wait_time)
-act(main_str+' --kin'+' 0'+' --inputs'+' full' )
-slp(wait_time)
-act(main_str+' --kin'+' 1'+' --inputs'+' 2best')
-slp(wait_time)
-act(main_str+' --kin'+' 1'+' --inputs'+' full' )
-#slp(wait_time)
-"""
-
-
-"""
-#scan_typ   = 'trnm'
-scan_typ   = 'trnl'
-
-for i in flags[scan_typ]['list']:
-
-    fix_str = flags[scan_typ]['flag'] + str(i) 
-
-    #act(main_str+fix_str+' --kin'+' 0'+' --inputs'+' 2best')
-    #slp(wait_time)
-    #act(main_str+fix_str+' --kin'+' 0'+' --inputs'+' full' )
-    #slp(wait_time)
-    act(main_str+fix_str+' --kin'+' 1'+' --inputs'+' 2best')
-    slp(wait_time)
-    act(main_str+fix_str+' --kin'+' 1'+' --inputs'+' full' ) 
-    slp(wait_time) 
-"""
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Testing:
-
-"""
-for key in flags:
-    for i in flags['mass']['list']:
-        act('sbatch bdt_batch.py ' + flags['mass']['flag'] + i)
-"""
-
-"""
-comm_str_list = []
-comm_str_dict = {}
-
+flag_str  = []
+leng_list = []
 for key, item in flags.iteritems():
-    comm_str_dict[key] = []
-    for i in item['list']:
-        tmp_str = item['flag'] + str(i)
-        comm_str_dict[key].append(tmp_str)
+    flag_str.append(item['flag'])
+    leng_list.append( len(item['list']) )
+print flag_str
+
+cmb_lst   = combi_index( leng_list )
+combi     = [  [ flags[k[1]]['list'][i[k[0]]] for k in enumerate(flags) ] for i in cmb_lst  ]
+#print combi
 
 
-for key, item in comm_str_dict.iteritems():
-    tmp_str = tmp_stritem  
-    comm_str_list.append(item)
+
+attr_list = ['J1cHadEFrac','J1nHadEFrac','J1nEmEFrac','J1cEmEFrac','J1cmuEFrac','J1muEFrac','J1eleEFrac','J1eleMulti','J1photonEFrac','J1photonMulti','J1cHadMulti','J1nHadMulti','J1npr','J1cMulti','J1nMulti','J1nSelectedTracks','J1ecalE']
+
+attr_2combi_list = combi_2ofN(attr_list)
+attr_flag_str    = [' --attr1 ',' --attr2 ']
+fix_str          = ' --train 1 --trnm 60 --trnl 5000 --tstm 60 --tstl 5000 --kin 0 --inputs find2b '
+for i in attr_2combi_list:
+    out_string = main_str + fix_str
+    for j in enumerate(attr_flag_str):
+        out_string += j[1]+str(i[j[0]])  
+    #print out_string
+    act(out_string)
+    slp(wait_time)
 
 
-print comm_str_list
+
 """
+skip_point_str = ' --tstm 20 --tstl 1000 '#' --tstm 30 --tstl 1000 '#' --tstm 60 --tstl 1000 '#' --tstm 30 --tstl 1000 '#' --tstm 30 --tstl 5000 '#' --tstm 60 --tstl 2000 '#' --tstm 60 --tstl 5000 '#' --tstm 20 --tstl 5000 ' 
+#' --tstm 20 --tstl 500 '#' --tstm 30 --tstl 500 '#' --tstm 60 --tstl 500 '#' --tstm 50 --tstl 500 '#' --tstm 40 --tstl 500 '
+#skip_point_str1 = ' --trnm 40 '
+#skip_point_str2 = ' --trnl 500 '
+for i in combi:
+    out_string = main_str
+    for j in enumerate(flag_str):
+        out_string += j[1]+str(i[j[0]])
+    if skip_point_str in out_string: continue
+    #if skip_point_str1 in out_string: continue
+    #if skip_point_str2 in out_string: continue
+    print out_string
+    act(out_string)
+    slp(wait_time)
+"""
+
+
+
+
+
+
+
+
+
+

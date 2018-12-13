@@ -13,30 +13,31 @@ from time  import sleep       as slp
 from combi import combi_index as cmbi
 
 flags                 = {}
-
-#flags['trnm']         = {}
-#flags['trnm']['flag'] = ' --trnm '
-#flags['trnm']['list'] = [20,30,40,50,60]
+"""
+flags['trnm']         = {}
+flags['trnm']['flag'] = ' --trnm '
+flags['trnm']['list'] = [20,30,40,50,60]
+flags['trnl']         = {}
+flags['trnl']['flag'] = ' --trnl '
+flags['trnl']['list'] = [500,1000,2000,5000] 
+"""
 
 flags['tstm']         = {}
 flags['tstm']['flag'] = ' --tstm '
 flags['tstm']['list'] = [20,30,40,50,60] # range(15,65,5)
-
-#flags['trnl']         = {}
-#flags['trnl']['flag'] = ' --trnl '
-#flags['trnl']['list'] = [500,1000,2000,5000] 
-
 flags['tstl']         = {}
 flags['tstl']['flag'] = ' --tstl '
 flags['tstl']['list'] = [500,1000,2000,5000]
+
+
 
 flags['inputs']         = {}
 flags['inputs']['flag'] = ' --inputs '
 flags['inputs']['list'] = ['full']#['2best','full']
 
-flags['kin']         = {}
-flags['kin']['flag'] = ' --kin '
-flags['kin']['list'] = [0]#[0,1]
+flags['kin']            = {}
+flags['kin']['flag']    = ' --kin '
+flags['kin']['list']    = [0]#[0,1]
 
 
 wait_time  = 20 # Seconds
@@ -56,20 +57,39 @@ combi   = [  [ flags[k[1]]['list'][i[k[0]]] for k in enumerate(flags) ] for i in
 
 
 
+"""
+skip_point_str = #' --tstm 30 --tstl 500 '#' --tstm 60 --tstl 500 '#' --tstm 50 --tstl 500 '#' --tstm 40 --tstl 500 '
 
 
 
-skip_point_str = '--tstm 40 --tstl 500'
+    for i in combi:
+        out_string = main_str
+        for j in enumerate(flag_str):
+            out_string += j[1]+str(i[j[0]])
+        if skip_point_str in out_string: continue
+        print out_string
+        #act(out_string)
+        #slp(wait_time)
+"""
 
+
+
+#"""
+skip_point_str = ' --tstm 20 --tstl 1000 '#' --tstm 30 --tstl 1000 '#' --tstm 60 --tstl 1000 '#' --tstm 30 --tstl 1000 '#' --tstm 30 --tstl 5000 '#' --tstm 60 --tstl 2000 '#' --tstm 60 --tstl 5000 '#' --tstm 20 --tstl 5000 ' 
+#' --tstm 20 --tstl 500 '#' --tstm 30 --tstl 500 '#' --tstm 60 --tstl 500 '#' --tstm 50 --tstl 500 '#' --tstm 40 --tstl 500 '
+#skip_point_str1 = ' --trnm 40 '
+#skip_point_str2 = ' --trnl 500 '
 for i in combi:
     out_string = main_str
     for j in enumerate(flag_str):
         out_string += j[1]+str(i[j[0]])
     if skip_point_str in out_string: continue
+    #if skip_point_str1 in out_string: continue
+    #if skip_point_str2 in out_string: continue
     print out_string
     act(out_string)
     slp(wait_time)
-
+#"""
 
 
 
