@@ -84,7 +84,7 @@ def DecisionScores(model,X_tests,df_test_origin,p):
             eb.append(   float(passed_b)/weighted_n_bkg   ) #false positive
             unc.append( delta )
         tB = timer()
-        print 'Time taken to calculate ROC: ', str(tB-tA), 'sec'
+        print 'Time to calculate ROC: ', str(tB-tA), 'sec'
         roc_dict        = {}
         roc_dict['unc'] = unc     
         roc_dict['tpr'] = es

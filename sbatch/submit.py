@@ -21,7 +21,6 @@ flags['trnl']         = {}
 flags['trnl']['flag'] = ' --trnl '
 flags['trnl']['list'] = [500,1000,2000,5000] 
 """
-
 flags['tstm']         = {}
 flags['tstm']['flag'] = ' --tstm '
 flags['tstm']['list'] = [20,30,40,50,60] # range(15,65,5)
@@ -30,17 +29,15 @@ flags['tstl']['flag'] = ' --tstl '
 flags['tstl']['list'] = [500,1000,2000,5000]
 
 
-
 flags['inputs']         = {}
 flags['inputs']['flag'] = ' --inputs '
 flags['inputs']['list'] = ['full']#['2best','full']
+flags['kin'   ]         = {}
+flags['kin'   ]['flag'] = ' --kin '
+flags['kin'   ]['list'] = [0]#[0,1]
 
-flags['kin']            = {}
-flags['kin']['flag']    = ' --kin '
-flags['kin']['list']    = [0]#[0,1]
 
-
-wait_time = 20 # Seconds
+wait_time = 8 # Seconds
 main_str  = 'sbatch bdt_batch.py '
 
 flag_str  = []
@@ -48,7 +45,7 @@ leng_list = []
 for key, item in flags.iteritems():
     flag_str.append(item['flag'])
     leng_list.append( len(item['list']) )
-print flag_str
+#print flag_str
 
 cmb_lst   = combi_index( leng_list )
 combi     = [  [ flags[k[1]]['list'][i[k[0]]] for k in enumerate(flags) ] for i in cmb_lst  ]
@@ -56,36 +53,43 @@ combi     = [  [ flags[k[1]]['list'][i[k[0]]] for k in enumerate(flags) ] for i 
 
 
 
-attr_list = ['J1cHadEFrac','J1nHadEFrac','J1nEmEFrac','J1cEmEFrac','J1cmuEFrac','J1muEFrac','J1eleEFrac','J1eleMulti','J1photonEFrac','J1photonMulti','J1cHadMulti','J1nHadMulti','J1npr','J1cMulti','J1nMulti','J1nSelectedTracks','J1ecalE']
 
+#"""
+# >>>>>>>>>>>>>>>>>>>>>>>>>>> Find 2 Best Attribute-Combination:
+attr_list = ['J1cHadEFrac','J1nHadEFrac','J1nEmEFrac','J1cEmEFrac','J1cmuEFrac','J1muEFrac','J1eleEFrac','J1eleMulti','J1photonEFrac','J1photonMulti','J1cHadMulti','J1nHadMulti','J1npr','J1cMulti','J1nMulti','J1nSelectedTracks','J1ecalE']
 attr_2combi_list = combi_2ofN(attr_list)
 attr_flag_str    = [' --attr1 ',' --attr2 ']
-fix_str          = ' --train 1 --trnm 60 --trnl 5000 --tstm 60 --tstl 5000 --kin 0 --inputs find2b '
-for i in attr_2combi_list:
+#fix_str          = ' --train 1 --trnm 60 --trnl 5000 --tstm 60 --tstl 5000 --kin 0 --inputs find2b '
+fix_str          = ' --train 0 --trnm 60 --trnl 5000 --tstm 40 --tstl 500 --kin 0 --inputs find2b '
+loop_list        = attr_2combi_list[52:59]#[60:] #[152:]#[91:]
+for i in loop_list:
     out_string = main_str + fix_str
     for j in enumerate(attr_flag_str):
         out_string += j[1]+str(i[j[0]])  
-    #print out_string
-    act(out_string)
-    slp(wait_time)
-
-
-
-"""
-skip_point_str = ' --tstm 20 --tstl 1000 '#' --tstm 30 --tstl 1000 '#' --tstm 60 --tstl 1000 '#' --tstm 30 --tstl 1000 '#' --tstm 30 --tstl 5000 '#' --tstm 60 --tstl 2000 '#' --tstm 60 --tstl 5000 '#' --tstm 20 --tstl 5000 ' 
-#' --tstm 20 --tstl 500 '#' --tstm 30 --tstl 500 '#' --tstm 60 --tstl 500 '#' --tstm 50 --tstl 500 '#' --tstm 40 --tstl 500 '
-#skip_point_str1 = ' --trnm 40 '
-#skip_point_str2 = ' --trnl 500 '
-for i in combi:
-    out_string = main_str
-    for j in enumerate(flag_str):
-        out_string += j[1]+str(i[j[0]])
-    if skip_point_str in out_string: continue
-    #if skip_point_str1 in out_string: continue
-    #if skip_point_str2 in out_string: continue
     print out_string
     act(out_string)
     slp(wait_time)
+#"""
+
+
+"""
+# >>>>>>>>>>>>>>>>>>>>>>>>>>> 2D Parameter space:
+fix_str = ' --train 0 '
+for m_skp in [40,50]:
+    for l_skp in [1000,5000]:
+        train_str      = ' --trnm '+str(m_skp)+' --trnl '+str(l_skp)+' '
+        skip_point_str = ' --tstm '+str(m_skp)+' --tstl '+str(l_skp)+' '
+
+        for i in combi:
+            out_string = main_str + fix_str + train_str
+            for j in enumerate(flag_str):
+                out_string += j[1]+str(i[j[0]])
+            if skip_point_str in out_string: continue
+            #if skip_point_str1 in out_string: continue
+            #if skip_point_str2 in out_string: continue
+            print out_string
+            act(out_string)
+            slp(wait_time)
 """
 
 
