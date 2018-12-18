@@ -69,6 +69,10 @@ def LoadData_main(kwargs):
     print ColumnLabelDict_sk
     ColumnLabelDict, ColumnLabelDict_sk, JetPrfx = id.getColumnLabel(df_test_orig)
     print ColumnLabelDict_sk
+
+    pkls                   = {}
+    pkls['df_train_o']     = df_train
+    pkls['df_test_orig_o'] = df_test_orig
     
     df_train       = np.asarray(df_train)
     df_test        = np.asarray(df_test_orig)
@@ -86,12 +90,13 @@ def LoadData_main(kwargs):
                  'weightPos'         : weightPos,
                }
     
-    pkls                 = {}
+    #pkls                 = {}
     pkls['df_train']     = df_train
     pkls['df_test']      = df_test
     pkls['df_test_orig'] = df_test_orig
     pkls['out_dict']     = out_dict
  
+
     """
     descrStr       = '_'.join(p['descr'])
     dump_pth = p['path']+'/'+p['loadedDatas_dir']+'/'+'preload_'+descrStr+'_forTrain'+str(p['bdtTrainOn'])+'.pkl'
