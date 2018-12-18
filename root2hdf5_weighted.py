@@ -94,7 +94,6 @@ if 1:
 ## load data
 start = time.time()
 
-#xs          = { '50to100': 246300000 , '100to200': 28060000 , '200to300': 1710000 , '300to500': 351300 , '500to700': 31630 , '700to1000': 6802 , '1000to1500': 1206 , '1500to2000': 120.4 , '2000toInf': 25.25 , 'sgn': 3.782 }
 train_ratio = 0.6
 test_ratio  = 0.2
 val_ratio   = 0.2
@@ -102,29 +101,19 @@ val_ratio   = 0.2
 pkls         = LoadData_main( params )
 df_train     = pkls['df_train_o']
 df_test_orig = pkls['df_test_orig_o']
-#in_dict      = pkls['out_dict']
-
 df_all       = df_train.copy()
-"""
-ColumnLabelDict    = in_dict['ColumnLabelDict']
-ColumnLabelDict_sk = in_dict['ColumnLabelDict_sk']
-JetPrfx            = in_dict['JetPrfx']
-isSigPos           = in_dict['isSigPos']
-weightPos          = in_dict['weightPos']
-JetPrfx            = in_dict['JetPrfx']
-"""    
+
+
 open_time = time.time()
-
-df       = pd.DataFrame()
-df_t     = pd.DataFrame()
-
+df        = pd.DataFrame()
+df_t      = pd.DataFrame()
 #dfTest         = pd.DataFrame()
 #dfTest_t       = pd.DataFrame()
 #dfTest         = df_all
 #dfTest_t       = df_test_orig
 #dfTest['tt']   = 1
 #dfTest_t['tt'] = 1
-print df_all
+print df_all[:12]
 
 attr_trans       = {}
 attr_trans['E']  = 'energy'
@@ -136,23 +125,10 @@ attr_trans['C']  = 'ifTrack'
 for i in range(n_cands):     
     for j in ['E','PX','PY','PZ','C']:
         lbl_str_out       = j+'_'+str(i)
-        lbl_str_in        = 'Jet'+str(1)+'s_pfc'+str(i+1)+'_'+ attr_trans[j]
+        lbl_str_in        = 'Jet'+str(1)+'s_pfc'+str(i+1)+'_'+attr_trans[j]
         df[lbl_str_out]   = df_all[lbl_str_in]
         df_t[lbl_str_out] = df_test_orig[lbl_str_in]
 
-    """
-    df["E_{0}".format(i) ]   = df_all["Jet{0}s_pfc{1}_energy".format(1, i+1) ]
-    df["PX_{0}".format(i)]   = df_all["Jet{0}s_pfc{1}_px".format(1, i+1) ]
-    df["PY_{0}".format(i)]   = df_all["Jet{0}s_pfc{1}_py".format(1, i+1) ]
-    df["PZ_{0}".format(i)]   = df_all["Jet{0}s_pfc{1}_pz".format(1, i+1) ]
-    df["C_{0}".format(i)]    = df_all["Jet{0}s_pfc{1}_ifTrack".format(1, i+1) ]
- 
-    df_t["E_{0}".format(i) ] = df_test_orig["Jet{0}s_pfc{1}_energy".format(1, i+1) ]
-    df_t["PX_{0}".format(i)] = df_test_orig["Jet{0}s_pfc{1}_px".format(1, i+1) ]
-    df_t["PY_{0}".format(i)] = df_test_orig["Jet{0}s_pfc{1}_py".format(1, i+1) ]
-    df_t["PZ_{0}".format(i)] = df_test_orig["Jet{0}s_pfc{1}_pz".format(1, i+1) ]
-    df_t["C_{0}".format(i)]  = df_test_orig["Jet{0}s_pfc{1}_ifTrack".format(1, i+1) ]
-    """
     """
     df["E_{0}".format(i) ] = dfTest['tt']
     df["PX_{0}".format(i)] = dfTest['tt']
