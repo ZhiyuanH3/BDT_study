@@ -98,7 +98,11 @@ def DecisionScores(model,X_tests,df_test_origin,p):
 
 def bdt_train(ps,X_Train,y_Train,W_train):
     #~~~~~~~~Create and fit an AdaBoosted decision tree
-    clf = DecisionTreeClassifier(  max_depth = ps['max_depth']  )
+    clf = DecisionTreeClassifier(  max_depth                = ps['max_depth'],\
+                                   min_weight_fraction_leaf = ps['min_weight_fraction_leaf'],\
+                                )
+
+
     bdt = AdaBoostClassifier(  
                               clf                                ,\
 			      algorithm     = ps['algorithm']    ,\
@@ -121,7 +125,9 @@ def bdt_train(ps,X_Train,y_Train,W_train):
     #pkl_path = pkl_path + '/' + dsc_str + '/'
     #if not os.path.isdir(pkl_path):
     #    os.system('mkdir '+pkl_path)
-    joblib.dump(bdt, pkl_path+'/'+'bdt_'+dsc_str+'.pkl')
+    #if ps['dump']:
+    if 1:
+        joblib.dump(bdt, pkl_path+'/'+'bdt_'+dsc_str+'.pkl')
  
 
 def bdt_test(X_Test,y_Test,W_test,df_Test_orig,ps):
@@ -144,14 +150,77 @@ def bdt_test(X_Test,y_Test,W_test,df_Test_orig,ps):
     return out_dict
 
 
-def bdt_main(PS,X_Trains,X_Tests,y_Trains,y_Tests,W_trains,W_tests,df_Test_origs,pklNames):
-    if   PS['trainOn'] == 1:    bdt_train(PS,X_Trains,y_Trains,W_trains,pklNames)
+def bdt_main(PS,X_Trains,X_Tests,y_Trains,y_Tests,W_trains,W_tests,df_Test_origs):
+    if   PS['trainOn'] == 1:    bdt_train(PS,X_Trains,y_Trains,W_trains)
     elif PS['trainOn'] == 0:    out_dict = bdt_test(X_Tests,y_Tests,W_tests,df_Test_origs,PS)
     return out_dict
 
 
 
 
+
+def bdt_train_score(X_Train,y_Train,W_train,df_Train,ps):
+    print '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Loading BDT-Model...'
+    dsc_str  = ps['descr'][0] + '_' + '_'.join(ps['descr'][2:5])
+    pkl_path = ps['path_result'] + '/' + 'save_model' #+ '/' + dsc_str 
+    pkl_path = pkl_path+'/'+'bdt_'+dsc_str+'.pkl'
+    bdt      = joblib.load(pkl_path)
+    if ps['calcROCon'] == 1:    roc_dict = DecisionScores(bdt,X_Train,df_Train,ps)
+    y_pred_proba_bdt                     = bdt.predict_proba(X_Train)[:,1]
+    fpr_bdt, tpr_bdt, thresholds_bdt     = metrics.roc_curve(y_Train, y_pred_proba_bdt, sample_weight=W_train)
+    auc_bdt                              = metrics.roc_auc_score(y_Train, y_pred_proba_bdt, sample_weight=W_train)
+    print '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Training score -- AUC_bdt: ', auc_bdt
+    out_dict                   = {}
+    out_dict['aoc']            = auc_bdt
+    out_dict['fpr']            = fpr_bdt
+    out_dict['tpr']            = tpr_bdt
+    out_dict['thresholds_bdt'] = thresholds_bdt
+    out_dict['roc']            = roc_dict   
+    return out_dict
+
+
+
+def bdt_val(X_Train,y_Train,W_train,df_Train,X_Test,y_Test,W_test,df_Test_orig,ps):
+    PS                             = ps
+    PS['min_weight_fraction_leaf'] = 0       
+    best             = PS['min_weight_fraction_leaf']
+    max_par_val      = 0.5
+    incrmt           = 0.1
+    goon             = 1 
+    #train_score_list = [0]
+    test_score_list  = [0]
+    #train_score_best = 0
+    test_score_best  = 0 
+    depth            = 0
+    max_depth        = 4
+    changed          = 0
+    while goon: 
+        print '-----------------------------> depth: ', depth  
+        print '=============================> best score: ', test_score_best
+        bdt_train(PS,X_Train,y_Train,W_train)
+        #train_dict  = bdt_train_score(X_Train,y_Train,W_train,df_Train,ps)
+        test_dict   = bdt_test(X_Test,y_Test,W_test,df_Test_orig,ps)
+        #train_score = train_dict['aoc'] 
+        test_score  = test_dict['aoc']
+        #train_score_list.append(train_score)  
+        test_score_list.append(test_score)
+        if test_score > test_score_best: 
+            best    = PS['min_weight_fraction_leaf']
+            changed = 0 
+        else:
+            depth   += 1
+            changed  = 1     
+               
+        if changed == 1:
+            incrmt *= 0.5
+            PS['min_weight_fraction_leaf'] = best
+        #train_score_best = max(train_score_list)
+        test_score_best  = max(test_score_list)   
+        PS['min_weight_fraction_leaf'] += incrmt 
+        if (depth == max_depth) or (PS['min_weight_fraction_leaf'] > max_par_val): goon = 0
+
+    PS['min_weight_fraction_leaf'] = best
+    bdt_train(PS,X_Train,y_Train,W_train)
 
 
 

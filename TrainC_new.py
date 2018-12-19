@@ -6,7 +6,7 @@ from sklearn.externals   import joblib
 from timeit              import default_timer    as timer
 from rocPlot             import plotROC_main
 from main_load_datas     import LoadData_main
-from main_bdt            import bdt_main, bdt_train, bdt_test
+from main_bdt            import bdt_main, bdt_train, bdt_test, bdt_train_score, bdt_val
 
 
 def mainF(kwargs):
@@ -28,10 +28,11 @@ def mainF(kwargs):
     #p['attrAll'] += id.nKinListGen(p['num_of_jets'], p['kinList'])
     if int( p['load_from_root'] ) == 1:    pkls          = LoadData_main( p )
     
-    df_train     = pkls['df_train'] 
-    df_test      = pkls['df_test'] 
-    df_test_orig = pkls['df_test_orig'] 
-    in_dict      = pkls['out_dict'] 
+    df_train      = pkls['df_train'] 
+    df_test       = pkls['df_test'] 
+    df_train_orig = pkls['df_train_orig']
+    df_test_orig  = pkls['df_test_orig'] 
+    in_dict       = pkls['out_dict'] 
     """
     timeA        = timer()
     descrStr     = '_'.join(p['descr'])
@@ -69,8 +70,32 @@ def mainF(kwargs):
     #print ColumnLabelDict
     #print ColumnLabelDict_sk
      
-    if   p['bdtTrainOn'] == 1:    bdt_train(ps=p, X_Train=X_train, y_Train=y_train, W_train=w_train)
+    if   p['bdtTrainOn'] == 1:
+        #bdt_train(ps=p, X_Train=X_train, y_Train=y_train, W_train=w_train)
+        bdt_val( 
+                 X_Train      = X_train,\
+                 y_Train      = y_train,\
+                 W_train      = w_train,\
+                 df_Train     = df_train_orig,\
+                 X_Test       = X_test,\
+                 y_Test       = y_test,\
+                 W_test       = w_test,\
+                 df_Test_orig = df_test_orig,\
+                 ps           = p
+               )
     elif p['bdtTrainOn'] == 0:    pass
+
+    #>>>>>>>>>>>>>>>>training score:
+    """
+    tmp_out = bdt_train_score(
+                               X_Train       = X_train,\
+                               y_Train       = y_train,\
+                               W_train       = w_train,\
+                               df_Train      = df_train_orig,\
+                               ps            = p
+                             )
+    """
+
     output_dict = bdt_test(                                  
 		            X_Test       = X_test,\
 		            y_Test       = y_test,\
@@ -79,6 +104,20 @@ def mainF(kwargs):
                             ps           = p 
                           )
     output_dict['cut_based'] = cutBaseDict        
+
+    """
+    if   p['bdtTrainOn'] == 1:
+        aoc_train = tmp_out['aoc']
+        aoc_val   = output_dict['aoc']    
+    """ 
+    
+
+
+
+
+
+
+
 
     #os.system('rm '+load_pth)
     return output_dict

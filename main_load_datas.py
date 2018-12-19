@@ -74,6 +74,9 @@ def LoadData_main(kwargs):
     pkls['df_train_o']     = df_train
     pkls['df_test_orig_o'] = df_test_orig
     
+    pkls['df_train_orig']  = df_train
+    pkls['df_test_orig']   = df_test_orig
+
     df_train       = np.asarray(df_train)
     df_test        = np.asarray(df_test_orig)
     isSigPos       = ColumnLabelDict[p['isSigL']]
@@ -93,7 +96,7 @@ def LoadData_main(kwargs):
     #pkls                 = {}
     pkls['df_train']     = df_train
     pkls['df_test']      = df_test
-    pkls['df_test_orig'] = df_test_orig
+    #pkls['df_test_orig'] = df_test_orig
     pkls['out_dict']     = out_dict
  
 

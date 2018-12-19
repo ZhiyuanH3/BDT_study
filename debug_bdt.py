@@ -64,8 +64,8 @@ path_result    = '/beegfs/desy/user/hezhiyua/LLP/bdt_output/result/Lisa/debug/'
 
 p                     = {}
 p['train_test_ratio'] = 0.6
-p['N_bkg_to_train']   = 2000000
-p['N_bkg_to_test']    = 11400000
+p['N_bkg_to_train']   = 10000#2000000
+p['N_bkg_to_test']    = 100000#11400000
 p['maxDataLoadCut']   = 888888888
 
 CL       = {}
@@ -147,10 +147,12 @@ def setParams(**pp):
 	       #'n_epochs'                      : 20,
 	       #-----------------------fcnn
 	       #-----------------------------------BDT
-	       'max_depth'                     : 4,
+	       'max_depth'                     : 8,
+               'min_weight_fraction_leaf'      : 0.1,#0.08,#(0,0.5)
+
 	       'algorithm'                     : 'SAMME',  
-	       'n_estimators'                  : 140,
-	       'learning_rate'                 : 0.1,
+	       'n_estimators'                  : 500,#140,
+	       'learning_rate'                 : 0.1,#0.1,
 	       #-----------------------------------BDT
 	       #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~hyper_parameters
 	       #Fixing random state for reproducibility
