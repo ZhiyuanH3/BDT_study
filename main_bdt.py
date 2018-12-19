@@ -6,6 +6,7 @@ from sklearn.tree        import DecisionTreeClassifier
 from sklearn.externals   import joblib
 from sklearn             import metrics
 from timeit              import default_timer    as timer
+import heapq
 import os
 import sys
 sys.path.append('/home/hezhiyua/desktop/PyrootLearn/ROC/performance_test/')
@@ -136,17 +137,18 @@ def bdt_test(X_Test,y_Test,W_test,df_Test_orig,ps):
     pkl_path = ps['path_result'] + '/' + 'save_model' #+ '/' + dsc_str 
     pkl_path = pkl_path+'/'+'bdt_'+dsc_str+'.pkl'
     bdt      = joblib.load(pkl_path)
-    if ps['calcROCon'] == 1:    roc_dict = DecisionScores(bdt,X_Test,df_Test_orig,ps)
-    y_pred_proba_bdt                     = bdt.predict_proba(X_Test)[:,1]
-    fpr_bdt, tpr_bdt, thresholds_bdt     = metrics.roc_curve(y_Test, y_pred_proba_bdt, sample_weight=W_test)
-    auc_bdt                              = metrics.roc_auc_score(y_Test, y_pred_proba_bdt, sample_weight=W_test)
+    y_pred_proba_bdt           = bdt.predict_proba(X_Test)[:,1]
+    auc_bdt                    = metrics.roc_auc_score(y_Test, y_pred_proba_bdt, sample_weight=W_test)
     print '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> AUC_bdt: ', auc_bdt
     out_dict                   = {}
     out_dict['aoc']            = auc_bdt
-    out_dict['fpr']            = fpr_bdt
-    out_dict['tpr']            = tpr_bdt
-    out_dict['thresholds_bdt'] = thresholds_bdt
-    out_dict['roc']            = roc_dict
+    if not ps['val_on']:
+        if ps['calcROCon'] == 1:    roc_dict = DecisionScores(bdt,X_Test,df_Test_orig,ps)
+        fpr_bdt, tpr_bdt, thresholds_bdt     = metrics.roc_curve(y_Test, y_pred_proba_bdt, sample_weight=W_test)
+        out_dict['fpr']            = fpr_bdt
+        out_dict['tpr']            = tpr_bdt
+        out_dict['thresholds_bdt'] = thresholds_bdt
+        out_dict['roc']            = roc_dict
     return out_dict
 
 
@@ -181,46 +183,163 @@ def bdt_train_score(X_Train,y_Train,W_train,df_Train,ps):
 
 
 def bdt_val(X_Train,y_Train,W_train,df_Train,X_Test,y_Test,W_test,df_Test_orig,ps):
-    PS                             = ps
-    PS['min_weight_fraction_leaf'] = 0       
-    best             = PS['min_weight_fraction_leaf']
-    max_par_val      = 0.5
-    incrmt           = 0.1
-    goon             = 1 
-    #train_score_list = [0]
-    test_score_list  = [0]
-    #train_score_best = 0
-    test_score_best  = 0 
-    depth            = 0
-    max_depth        = 4
-    changed          = 0
-    while goon: 
-        print '-----------------------------> depth: ', depth  
-        print '=============================> best score: ', test_score_best
-        bdt_train(PS,X_Train,y_Train,W_train)
-        #train_dict  = bdt_train_score(X_Train,y_Train,W_train,df_Train,ps)
-        test_dict   = bdt_test(X_Test,y_Test,W_test,df_Test_orig,ps)
-        #train_score = train_dict['aoc'] 
-        test_score  = test_dict['aoc']
-        #train_score_list.append(train_score)  
-        test_score_list.append(test_score)
-        if test_score > test_score_best: 
-            best    = PS['min_weight_fraction_leaf']
-            changed = 0 
-        else:
-            depth   += 1
-            changed  = 1     
-               
-        if changed == 1:
-            incrmt *= 0.5
-            PS['min_weight_fraction_leaf'] = best
-        #train_score_best = max(train_score_list)
-        test_score_best  = max(test_score_list)   
-        PS['min_weight_fraction_leaf'] += incrmt 
-        if (depth == max_depth) or (PS['min_weight_fraction_leaf'] > max_par_val): goon = 0
+    PS           = ps
+    PS['val_on'] = 1
 
-    PS['min_weight_fraction_leaf'] = best
+    par_str      = 'min_weight_fraction_leaf'
+    min_par_val  = 0.
+    max_par_val  = 0.5
+    n_per_dpth   = 4#5#4#7
+
+    steps        = 0
+    goon         = 1  
+    depth        = 0
+    max_depth    = 4#5#4#3
+   
+    A            = min_par_val
+    a            = A
+    B            = max_par_val
+    b            = B
+    C            = (B-A)/2.    
+    A_score      = 0.5
+    B_score      = 0.5
+    C_score      = 0.5
+
+    # Approch: Zoom In
+    while goon:
+        par_list        = []
+        test_score_list = []
+        incrmt          = (b - a)/float(n_per_dpth+1)
+        for i in np.arange(a+incrmt, b, incrmt):
+            PS[par_str] = i
+            bdt_train(PS,X_Train,y_Train,W_train)
+            steps      += 1
+            test_dict   = bdt_test(X_Test,y_Test,W_test,df_Test_orig,ps)
+            test_score  = test_dict['aoc']
+            test_score_list.append(test_score)
+            par_list.append(i)
+        par_list.append(A)
+        par_list.append(B)
+        par_list.append(C)
+        test_score_list.append(A_score)
+        test_score_list.append(B_score)   
+        test_score_list.append(C_score)
+
+        best_test_scores = heapq.nlargest(3, test_score_list) 
+        test_score_best0 = best_test_scores[0]
+        test_score_best1 = best_test_scores[1]
+        test_score_best2 = best_test_scores[2]
+        print '>>>>>>>>>>>>>>>>>>>>>>>>>>> Best Scores:', best_test_scores
+        best0            = par_list[ test_score_list.index(test_score_best0) ]
+        best1            = par_list[ test_score_list.index(test_score_best1) ]
+        best2            = par_list[ test_score_list.index(test_score_best2) ]        
+        print '>>>>>>>>>>>>>>>>>>>>>>>>>>> Best Param.:', best0
+        if test_score_best0 > C_score: 
+            C                = best0
+            C_score          = test_score_best0
+
+        if ((best0 > best1) and (best0 < best2)) or ((best0 < best1) and (best0 > best2)):
+            if   best1 == best2: break
+            elif best1 > best2 :
+                A = best2
+                a = A
+                B = best1
+                b = B
+                A_score = test_score_best2
+                B_score = test_score_best1      
+            else:
+                B = best2
+                b = B
+                A = best1
+                a = A
+                B_score = test_score_best2
+                A_score = test_score_best1
+        else:  
+            if   best1 == best0: break
+            elif best1 > best0 :
+                A = best0 
+                a = A - incrmt
+                B = best1
+                b = B
+                A_score = test_score_best0
+                B_score = test_score_best1   
+            else:
+                B = best0
+                b = B + incrmt
+                A = best1
+                a = A
+                B_score = test_score_best0
+                A_score = test_score_best1
+        depth += 1
+        if depth == max_depth: goon = 0 
+
+
+    # Approch: Random Search
+    """
+    if 1:
+        n_epoch         = 20
+        n_bins          = 100
+        par_list        = []
+        test_score_list = []
+        incrmt          = (B - A)/float(n_bins+1)
+        for i in range(n_epoch):
+            PS[par_str] = np.random.choice( np.arange(A+incrmt, B, incrmt) )
+            bdt_train(PS,X_Train,y_Train,W_train)
+            steps      += 1
+            test_dict   = bdt_test(X_Test,y_Test,W_test,df_Test_orig,ps)
+            test_score  = test_dict['aoc']
+            test_score_list.append(test_score)
+            par_list.append(i)
+        par_list.append(A)
+        par_list.append(B)
+        test_score_list.append(A_score)
+        test_score_list.append(B_score)   
+        best_test_scores = heapq.nlargest(2, test_score_list)
+        test_score_best1 = best_test_scores[0]
+        test_score_best2 = best_test_scores[1]
+        print '>>>>>>>>>>>>>>>>>>>>>>>>>>> 2 Best:', best_test_scores
+        best1            = par_list[ test_score_list.index(test_score_best1) ]
+        best2            = par_list[ test_score_list.index(test_score_best2) ]
+        print '>>>>>>>>>>>>>>>>>>>>>>>>>>> Best Param.:', best1
+    """
+
+    # Approch: Grid Search
+    """
+    if 1:
+        n_per_dpth   = 20
+        par_list        = []
+        test_score_list = []
+        incrmt          = (B - A)/float(n_per_dpth+1)
+        for i in np.arange(A+incrmt, B, incrmt):
+            PS[par_str] = i
+            bdt_train(PS,X_Train,y_Train,W_train)
+            steps      += 1
+            test_dict   = bdt_test(X_Test,y_Test,W_test,df_Test_orig,ps)
+            test_score  = test_dict['aoc']
+            test_score_list.append(test_score)
+            par_list.append(i)
+        par_list.append(A)
+        par_list.append(B)
+        test_score_list.append(A_score)
+        test_score_list.append(B_score)   
+        best_test_scores = heapq.nlargest(2, test_score_list)
+        test_score_best1 = best_test_scores[0]
+        test_score_best2 = best_test_scores[1]
+        print '>>>>>>>>>>>>>>>>>>>>>>>>>>> 2 Best:', best_test_scores
+        best1            = par_list[ test_score_list.index(test_score_best1) ]
+        best2            = par_list[ test_score_list.index(test_score_best2) ]
+        print '>>>>>>>>>>>>>>>>>>>>>>>>>>> Best Param.:', best1
+    """
+
+
+    print '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Steps: ', steps
+    PS['val_on']  = 0
+    PS[par_str]   = best0
     bdt_train(PS,X_Train,y_Train,W_train)
+  
+
+
+
 
 
 

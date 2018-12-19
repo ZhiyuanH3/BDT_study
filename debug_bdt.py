@@ -148,11 +148,11 @@ def setParams(**pp):
 	       #-----------------------fcnn
 	       #-----------------------------------BDT
 	       'max_depth'                     : 8,
-               'min_weight_fraction_leaf'      : 0.1,#0.08,#(0,0.5)
+               #'min_weight_fraction_leaf'      : 0.1,#0.08,#(0,0.5)
 
 	       'algorithm'                     : 'SAMME',  
-	       'n_estimators'                  : 500,#140,
-	       'learning_rate'                 : 0.1,#0.1,
+	       'n_estimators'                  : 800,#1000,#500,#140,
+	       'learning_rate'                 : 0.01,#0.005,#0.01,#0.1,
 	       #-----------------------------------BDT
 	       #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~hyper_parameters
 	       #Fixing random state for reproducibility

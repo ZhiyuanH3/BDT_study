@@ -85,6 +85,7 @@ def mainF(kwargs):
                )
     elif p['bdtTrainOn'] == 0:    pass
 
+    p['val_on'] = 0
     #>>>>>>>>>>>>>>>>training score:
     """
     tmp_out = bdt_train_score(
