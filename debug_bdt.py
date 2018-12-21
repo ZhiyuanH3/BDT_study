@@ -64,8 +64,8 @@ path_result    = '/beegfs/desy/user/hezhiyua/LLP/bdt_output/result/Lisa/debug/'
 
 p                     = {}
 p['train_test_ratio'] = 0.6
-p['N_bkg_to_train']   = 10000#2000000
-p['N_bkg_to_test']    = 100000#11400000
+p['N_bkg_to_train']   = 20000#100000#10000#2000000
+p['N_bkg_to_test']    = 200000#100000#100000#11400000
 p['maxDataLoadCut']   = 888888888
 
 CL       = {}

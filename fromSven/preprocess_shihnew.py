@@ -41,9 +41,12 @@ mass_col    = "mass"
 #n_constit   = 200
 n_constit   = 40
 #batch_size  = 1000
-#batch_size  = 3000
-batch_size  = 500
-intensity = "pT"  # or "E" what to use for filling images
+batch_size  = 867 #test
+#batch_size  = 985 #val
+#batch_size  = 3024 #train 
+
+#intensity = "pT"  # or "E" what to use for filling images
+intensity = 'E'
 n_pixel = 40
 
 # image preprocessing options
@@ -242,6 +245,12 @@ def process_batch(start_id):
     if event_ID_exists:
         event_ID = df['event_ID']
 
+    ##Brian:
+    event_weight_exists = 'weight' in df.columns
+    if event_weight_exists:
+        event_weight = df['weight']
+    
+
     print_time("Calculating pT")
     E     = vec4[:,0,:]
     pxs   = vec4[:,1,:]
@@ -310,6 +319,14 @@ def process_batch(start_id):
         # event_ID and df_out must have the same indices
         event_ID.index = df_out.index
         df_out['event_ID'] = event_ID
+
+    ##Brian:
+    if event_weight_exists:
+        # event_weight and df_out must have the same indices
+        event_weight.index = df_out.index
+        df_out['weight'] = event_weight 
+
+
     print_time("Writing output file")
     df_out.to_hdf(sys.argv[2],'table',append=(start_id!=0),format='table',complib = "blosc", complevel=5)
 

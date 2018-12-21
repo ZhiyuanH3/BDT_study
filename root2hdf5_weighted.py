@@ -47,8 +47,8 @@ path_out  = '/beegfs/desy/user/hezhiyua/2bBacked/skimmed/Skim/fromBrian_forLola/
 
 p                     = {}
 p['train_test_ratio'] = 0.6
-p['N_bkg_to_train']   = 20000#2000000
-p['N_bkg_to_test']    = 5330#11400000
+p['N_bkg_to_train']   = 42000#20000#2000000
+p['N_bkg_to_test']    = 10000#5330#11400000
 p['maxDataLoadCut']   = 888888888
 
 
@@ -71,7 +71,7 @@ if 1:
                'qcdPrefix'                     : 'QCD_HT',
                'sgnPrefix'                     : 'VBFH_HToSSTobbbb_MH-125_MS-',
                'versionN_b'                    : 'TuneCUETP8M1_13TeV-madgraphMLM-pythia8-v1',
-               'versionN_s'                    : 'TuneCUETP8M1_13TeV-powheg-pythia8_PRIVATE-MC',
+               'versionN_s'                    : 'TuneCUETP8M1_13TeV-powheg-pythia8_Tranche2_PRIVATE-MC',#'TuneCUETP8M1_13TeV-powheg-pythia8_PRIVATE-MC',
                'train_test_ratio'              : p['train_test_ratio'],
                'N_bkg_to_test'                 : p['N_bkg_to_test'],
                'N_bkg_to_train'                : p['N_bkg_to_train'],
@@ -142,9 +142,9 @@ for i in range(n_cands):
     df_t["C_{0}".format(i) ] = dfTest_t['tt']#df_test_orig["Jet{0}s_pfc{1}_ifTrack".format(1, i+1) ]
     """
 
-df["is_signal_new"]   = df_all[ params['isSigL'] ]#["is_signal"]
-df["weight"]          = df_all[ params['weightL'] ]#["weight"]
-df_t["is_signal_new"] = df_test_orig[ params['isSigL'] ]#["is_signal"]
+df["is_signal_new"]   = df_all[ params['isSigL'] ]       #["is_signal"]
+df["weight"]          = df_all[ params['weightL'] ]      #["weight"]
+df_t["is_signal_new"] = df_test_orig[ params['isSigL'] ] #["is_signal"]
 df_t["weight"]        = df_test_orig[ params['weightL'] ]#["weight"]
 
 
