@@ -28,12 +28,17 @@ import os.path
 # included assert outputfile
 
 # debugging 1
-assert len(sys.argv) == 4, "need 4 input parameters,\
- python constit2img.py .../input.h5 .../output.h5 n_events"
+#assert len(sys.argv) == 4, "need 4 input parameters,\
+# python constit2img.py .../input.h5 .../output.h5 n_events"
+assert len(sys.argv) == 5, "need 4 input parameters,\
+# python constit2img.py .../input.h5 .../output.h5 n_events"
 
 ########################################
 # Settings
 ########################################
+
+##Brian:
+in_typ = sys.argv[4]
 
 # input/output settings
 signal_col  = "is_signal_new"
@@ -41,17 +46,25 @@ mass_col    = "mass"
 #n_constit   = 200
 n_constit   = 40
 #batch_size  = 1000
-batch_size  = 867 #test
-#batch_size  = 985 #val
-#batch_size  = 3024 #train 
+
+if in_typ == 'test':
+    batch_size  = 13266 #test
+elif in_typ == 'val':
+    batch_size  = 3981 #val
+elif in_typ == 'train':
+    batch_size  = 9588 #train 
 
 #intensity = "pT"  # or "E" what to use for filling images
-intensity = 'E'
+#intensity = 'E'
+intensity = 'C'
 n_pixel = 40
 
 # image preprocessing options
 Rotate, Flip, Norm  = True, True, True  # full preprocessing
 # Rotate, Flip, Norm  = False, False, True # minimal preprocessing with norm
+
+##Brian:
+#if intensity == 'C': Rotate = False
 
 max_batches = float(sys.argv[3])/batch_size
 
@@ -157,10 +170,12 @@ def preprocessing(x ,y, weights):
     '''
 
     # shift
-    x_centroid = img_mom(x, y, weights, 1, 0) / weights.sum()
-    y_centroid = img_mom(x, y, weights, 0, 1)/ weights.sum()
-    x = x - x_centroid
-    y = y - y_centroid
+    ##Brian:
+    if 1:
+        x_centroid = img_mom(x, y, weights, 1, 0) / weights.sum()
+        y_centroid = img_mom(x, y, weights, 0, 1)/ weights.sum()
+        x = x - x_centroid
+        y = y - y_centroid
 
     # check if shifting worked, there can be problems with modulo variables like phi (y)
     # x and y are sorted after highest weight, 0-comp. gives hottest event
@@ -172,6 +187,8 @@ def preprocessing(x ,y, weights):
     if np.abs(y[0]) > n_warning:
         n_shift_phi += 1
 
+
+    
     if Rotate:
         # covariant matrix, eigenvectors corr. to principal axis
         u11 = img_mom(x, y, weights, 1, 1) / weights.sum()
@@ -229,7 +246,11 @@ def process_batch(start_id):
         return False
 
     print_time("Extracting 4-vectors")
-    feat_list =  ["E","PX","PY","PZ"]
+    #feat_list =  ["E","PX","PY","PZ"]
+    
+    ##Brian:
+    feat_list =  ["E","PX","PY","PZ","C"]
+
     cols = ["{0}_{1}".format(feature,constit)
             for feature in feat_list for constit in range(n_constit)]
     
@@ -258,6 +279,19 @@ def process_batch(start_id):
     pzs   = vec4[:,3,:]
     pT    = np.sqrt(pxs**2+pys**2)
 
+    ##Brian:
+    C     = vec4[:,4,:]  
+    print C
+    #print E[1]#.shape()
+    #print pxs[1]
+    #print pys[1]
+    #print pzs[1]
+    #print vec4[:,3,:][1]
+    #print vec4[:,4,:][1]
+    #print len(E)
+    #print E[1]
+    #print len(E[1])
+
     print_time("Calculating eta")
     etas  = eta(pT,pzs)
     print_time("Calculating phi")
@@ -280,13 +314,40 @@ def process_batch(start_id):
         weights = pT
     elif intensity == "E":
         weights = E
+   
+    ##Brian:
+    elif intensity == "C":
+        #weights = C
+        weights = pT#C
+    
+    C[C==1]  = 1000
+    C[C==0]  = 500
+    C[C==-1] = 0
 
     for i in np.arange(0,batch_size):
         etas[i,:], phis[i,:] = preprocessing(etas[i,:], phis[i,:], weights[i,:])
 
+    #print etas[1,:]
+
     # using pT instead of energy E
     print_time("Creating images")
-    z_ori = orig_image2(etas,phis,pT)
+    
+    if   intensity == 'pT':
+        z_ori = orig_image2(etas,phis,pT)
+    elif intensity == 'E':
+        z_ori = orig_image2(etas,phis,E)
+    elif intensity == 'C':
+        z_ori = orig_image2(etas,phis,C)
+        #z_ori = orig_image2(etas,phis,pT)
+        Norm = 0
+
+    z_ori[z_ori==1000] = 1
+    z_ori[z_ori==500]  = 0.5
+    z_ori[z_ori==0]    = 0#-1
+
+    print '!!!!!'
+    print z_ori[1,20,8:33]
+
 
     # normalize
     print_time("Normalize")
