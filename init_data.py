@@ -553,11 +553,11 @@ def CutBaseBenchmarkNew(df_test_orig,inDict,JetPrfx_bkg,refAttr='pt',isSigAttrSt
     h_cut_pre_fpr = TH1F('h_cut_pre_fpr' , 'hist_cut_pre_fpr'  , 1, bin_i, bin_f)
     h_cut_pos_fpr = TH1F('h_cut_pos_fpr' , 'hist_cut_pos_fpr'  , 1, bin_i, bin_f)
 
-    root_numpy.fill_hist(h_cut_pre_tpr          , df_sg      , df_sg)
-    root_numpy.fill_hist(h_cut_pos_tpr          , df_pos_sgn , df_pos_sgn)
+    root_numpy.fill_hist(h_cut_pre_tpr   , df_sg      , df_sg)
+    root_numpy.fill_hist(h_cut_pos_tpr   , df_pos_sgn , df_pos_sgn)
 
-    root_numpy.fill_hist(h_cut_pre_fpr          , df_bg      , df_bg)
-    root_numpy.fill_hist(h_cut_pos_fpr          , df_pos_bkg , df_pos_bkg)
+    root_numpy.fill_hist(h_cut_pre_fpr   , df_bg      , df_bg)
+    root_numpy.fill_hist(h_cut_pos_fpr   , df_pos_bkg , df_pos_bkg)
 
     g_cut_tpr = GAE()
     g_cut_fpr = GAE()

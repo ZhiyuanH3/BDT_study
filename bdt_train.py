@@ -61,10 +61,17 @@ dsc.append('v'      + str(version)                                )
 descrStr       = '_'.join(dsc) 
 path_result    = '/beegfs/desy/user/hezhiyua/LLP/bdt_output/result/Lisa/generalization_bdt/'
 
+"""
 p                     = {}
 p['train_test_ratio'] = 0.6
 p['N_bkg_to_train']   = 2000000
 p['N_bkg_to_test']    = 11400000
+p['maxDataLoadCut']   = 888888888
+"""
+p                     = {}
+p['train_test_ratio'] = 0.6
+p['N_bkg_to_train']   = 3750#2000000
+p['N_bkg_to_test']    = 21250#11400000
 p['maxDataLoadCut']   = 888888888
 
 CL       = {}
