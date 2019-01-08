@@ -123,8 +123,8 @@ def plotROC_main(pathOut,outName,cutBase_dict,pkl_dict):
         ax.set_yscale('log')
         #ax.set_xscale('log')
         axes = plt.gca()
-        axes.set_xlim([0.02,0.54])#([0.0001,0.54])#([0.02,0.54])#0.02,0.44 
-        axes.set_ylim([0.000001,0.1])#0.0001
+        axes.set_xlim([0.02,0.94])#([0.0001,0.54])#([0.02,0.54])#0.02,0.44 
+        axes.set_ylim([0.000001,0.1])#0.000001#0.0001
         plotROC(pkl_dict)
         #plotCuts(cutBase_dict)
         plt.grid(True, which='both')
@@ -166,11 +166,13 @@ if __name__ == '__main__':
  
     plot_on      =    1
     out_name     =    'test'
-    path         =    '/beegfs/desy/user/hezhiyua/LLP/bdt_output/result/Lisa/generalization_bdt/rs/'
-    path_out     =    '/beegfs/desy/user/hezhiyua/LLP/bdt_output/roc/'
+    #path         =    '/beegfs/desy/user/hezhiyua/LLP/bdt_output/result/Lisa/generalization_bdt/rs/'
+    #path_out     =    '/beegfs/desy/user/hezhiyua/LLP/bdt_output/roc/'
+    path         =    '/beegfs/desy/user/hezhiyua/LLP/bdt_output/result/Brian/train_on_selected_QCD/'
+    path_out     =    '/beegfs/desy/user/hezhiyua/LLP/bdt_output/result/Brian/train_on_selected_QCD/roc/'
 
     fileNameDict = {
-                     'BDT()'       : 'RS_trn_40GeV_500mm_tst_40GeV_500mm_slct1_attr_2best_kin0_v0.pkl',
+                     'BDT()'       : 'RS_trn_40GeV_5000mm_tst_20GeV_5000mm_slct1_attr_full_kin0_v0.pkl',
                      #'bdt'         : 'result_v1_withSelection.pickle' 
                    }
    

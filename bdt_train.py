@@ -40,10 +40,10 @@ selectionOn    = 1
 ###################################################################################################
 if   bdt_modelL == 'full':
     attr_str = bdt_modelL  
-    attrA    = ['J1cHadEFrac','J1nHadEFrac','J1nEmEFrac','J1cEmEFrac','J1cmuEFrac','J1muEFrac','J1eleEFrac','J1eleMulti','J1photonEFrac','J1photonMulti','J1cHadMulti','J1nHadMulti','J1npr','J1cMulti','J1nMulti','J1nSelectedTracks','J1ecalE']
+    attrA    = ['J1cHadEFrac','J1nHadEFrac','J1nEmEFrac','J1cEmEFrac','J1cmuEFrac','J1muEFrac','J1eleEFrac','J1eleMulti','J1photonEFrac','J1photonMulti','J1cHadMulti','J1nHadMulti','J1npr','J1cMulti','J1nMulti','J1nSelectedTracks','J1ecalE','J1VBF_DisplacedJet40_VTightID_Hadronic_match']
 elif bdt_modelL == '2best':
     attr_str = bdt_modelL
-    attrA    = ['J1nSelectedTracks','J1photonMulti']
+    attrA    = ['J1nSelectedTracks','J1VBF_DisplacedJet40_VTightID_Hadronic_match']#'J1photonMulti']
 elif bdt_modelL == 'find2b':
     attr_str = attr1+'_'+attr2
     attrA    = [attr1,attr2]
@@ -59,12 +59,16 @@ dsc.append('attr_'  + attr_str                                    )
 dsc.append('kin'    + str(kin)                                    )
 dsc.append('v'      + str(version)                                )
 descrStr       = '_'.join(dsc) 
-path_result    = '/beegfs/desy/user/hezhiyua/LLP/bdt_output/result/Lisa/generalization_bdt/'
+#path_result    = '/beegfs/desy/user/hezhiyua/LLP/bdt_output/result/Lisa/generalization_bdt/'
+path_result    = '/beegfs/desy/user/hezhiyua/LLP/bdt_output/result/Brian/train_on_selected_QCD/'
+
 
 p                     = {}
 p['train_test_ratio'] = 0.6
-p['N_bkg_to_train']   = 2000000
-p['N_bkg_to_test']    = 11400000
+#p['N_bkg_to_train']   = 2000000
+#p['N_bkg_to_test']    = 11400000
+p['N_bkg_to_train']   = 3750
+p['N_bkg_to_test']    = 21250
 p['maxDataLoadCut']   = 888888888
 
 CL       = {}
@@ -86,9 +90,11 @@ CL['HC'] = {
 
 rd_seed   = 4444
 bee_pth   ='/beegfs/desy/user/hezhiyua/2bBacked/skimmed/Skim/'
-if   selectionOn == 0:    path_data = bee_pth+'/forbdtnew/brianSample/'
-elif selectionOn == 1:    path_data = bee_pth+'/fromLisa_forBDT/with_triggerBool/withNSelectedTracks/'
+#bee_pth   = '/'
 
+if   selectionOn == 0:    path_data = bee_pth+'/forbdtnew/brianSample/'
+#elif selectionOn == 1:    path_data = bee_pth+'/fromLisa_forBDT/with_triggerBool/withNSelectedTracks/'
+elif selectionOn == 1:    path_data = bee_pth+'/fromBrian_forBDT/bkg_sgn/'
 
 def setParams(**pp):
     keyList = pp.keys()
@@ -125,7 +131,8 @@ def setParams(**pp):
 	       'qcdPrefix'                     : 'QCD_HT', 
 	       'sgnPrefix'                     : 'VBFH_HToSSTobbbb_MH-125_MS-',        
 	       'versionN_b'                    : 'TuneCUETP8M1_13TeV-madgraphMLM-pythia8-v1',
-	       'versionN_s'                    : 'TuneCUETP8M1_13TeV-powheg-pythia8_PRIVATE-MC',
+	       #'versionN_s'                    : 'TuneCUETP8M1_13TeV-powheg-pythia8_PRIVATE-MC',
+               'versionN_s'                    : 'TuneCUETP8M1_13TeV-powheg-pythia8_Tranche2_PRIVATE-MC',
 	       'train_test_ratio'              : pp['train_test_ratio'],
 	       'N_bkg_to_test'                 : pp['N_bkg_to_test'], 
 	       'N_bkg_to_train'                : pp['N_bkg_to_train'],
