@@ -54,9 +54,9 @@ elif in_typ == 'val':
 elif in_typ == 'train':
     batch_size  = 9588 #train 
 
-#intensity = "pT"  # or "E" what to use for filling images
+intensity = "pT"  # or "E" what to use for filling images
 #intensity = 'E'
-intensity = 'C'
+#intensity = 'C'
 n_pixel = 40
 
 # image preprocessing options
@@ -334,12 +334,13 @@ def process_batch(start_id):
     
     if   intensity == 'pT':
         z_ori = orig_image2(etas,phis,pT)
+        Norm  = 1 
     elif intensity == 'E':
         z_ori = orig_image2(etas,phis,E)
     elif intensity == 'C':
         z_ori = orig_image2(etas,phis,C)
         #z_ori = orig_image2(etas,phis,pT)
-        Norm = 0
+        Norm  = 0
 
     z_ori[z_ori==1000] = 1
     z_ori[z_ori==500]  = 0.5
