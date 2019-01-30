@@ -30,50 +30,52 @@ import os.path
 # debugging 1
 #assert len(sys.argv) == 4, "need 4 input parameters,\
 # python constit2img.py .../input.h5 .../output.h5 n_events"
-assert len(sys.argv) == 5, "need 4 input parameters,\
+assert len(sys.argv) == 12, "need 5 input parameters,\
 # python constit2img.py .../input.h5 .../output.h5 n_events"
 
 ########################################
 # Settings
 ########################################
 
-##Brian:
-in_typ = sys.argv[4]
 
 # input/output settings
-signal_col  = "is_signal_new"
-mass_col    = "mass"
-#n_constit   = 200
-n_constit   = 40
-#batch_size  = 1000
-
-if in_typ == 'test':
-    batch_size  = 13266 #test
-elif in_typ == 'val':
-    batch_size  = 3981 #val
-elif in_typ == 'train':
-    batch_size  = 9588 #train 
-
-intensity = "pT"  # or "E" what to use for filling images
-#intensity = 'E'
-#intensity = 'C'
-n_pixel = 40
+signal_col   = "is_signal_new"
+mass_col     = "mass"
+#n_constit    = 200
+#n_constit    = 40#400
+n_constit    = int(sys.argv[4])
+batch_size   = int(sys.argv[3])
+#intensity    = "pT"  # or "E" what to use for filling images
+intensity    = sys.argv[5]
+n_pixel      = int(sys.argv[11])#40
 
 # image preprocessing options
-Rotate, Flip, Norm  = True, True, True  # full preprocessing
-# Rotate, Flip, Norm  = False, False, True # minimal preprocessing with norm
+#Rotate, Flip, Norm  = True, True, True  # full preprocessing
+#Rotate, Flip, Norm  = False, False, True # minimal preprocessing with norm
+Rotate, Flip = bool(sys.argv[6]), bool(sys.argv[7]) #,sys.argv[8]
+Norm         = True
 
-##Brian:
-#if intensity == 'C': Rotate = False
 
-max_batches = float(sys.argv[3])/batch_size
+rot_angle    = float(sys.argv[8])
+aug_mode     = int(sys.argv[9])
+if aug_mode:
+    print '>>>>>>>>>>>>>>>>>>>> augmentation mode!!'
+else:
+    print '>>>>>>>>>>>>>>>>>>>> rot_preprocessing!!'
+
+max_batches  = float(sys.argv[3])/batch_size
 
 # grid settings
-xpixels = np.linspace(-0.58, 0.58, n_pixel)
-ypixels = np.linspace(-0.7, 0.7, n_pixel)
+#xpixels = np.linspace(-0.58, 0.58, n_pixel)
+#ypixels = np.linspace(-0.7, 0.7, n_pixel)
 
-#ypixels = np.linspace(-1.745, 1.745, n_pixel)
-#xpixels = np.linspace(-2, 2, n_pixel)
+##Brian:
+dR      = float(sys.argv[10])
+x_range = dR
+y_range = dR
+xpixels = np.linspace(-x_range, x_range, n_pixel)
+ypixels = np.linspace(-y_range, y_range, n_pixel)
+
 
 
 #########################################
@@ -207,6 +209,16 @@ def preprocessing(x ,y, weights):
         # theta to x_asix, arctan2 gives correct angle
         theta = np.arctan2(e_1[0], e_1[1])
 
+      
+        ##Brian:
+        #print 'theta: '
+        #print theta
+        #print type(theta)
+        if aug_mode:
+            theta = np.float64(rot_angle)
+            #print '>>>>>>>>>>>>>>>>>>>> augmentation mode!!'      
+        #else:
+        #    print '>>>>>>>>>>>>>>>>>>>> rot_preprocessing!!'
         # rotation, so that princple axis is vertical
         # anti-clockwise rotation matrix
         rotation = np.matrix([[np.cos(theta), -np.sin(theta)],
@@ -280,8 +292,13 @@ def process_batch(start_id):
     pT    = np.sqrt(pxs**2+pys**2)
 
     ##Brian:
-    C     = vec4[:,4,:]  
+    C      = vec4[:,4,:]  
+    C[C<0] = 0
+    CE     = C*E
     print C
+    print E
+    #print C*E
+    #exit()
     #print E[1]#.shape()
     #print pxs[1]
     #print pys[1]
@@ -310,19 +327,20 @@ def process_batch(start_id):
     phis[phis > np.pi] -= 2*np.pi
 
     print_time("Preprocessing")
+    """
     if intensity == "pT":
         weights = pT
     elif intensity == "E":
         weights = E
-   
+    """
     ##Brian:
-    elif intensity == "C":
-        #weights = C
-        weights = pT#C
-    
-    C[C==1]  = 1000
-    C[C==0]  = 500
-    C[C==-1] = 0
+    #elif intensity == "C":
+    #    weights = pT#C
+    weights = pT    
+
+    #C[C==1]  = 1000
+    #C[C==0]  = 500
+    #C[C==-1] = 0
 
     for i in np.arange(0,batch_size):
         etas[i,:], phis[i,:] = preprocessing(etas[i,:], phis[i,:], weights[i,:])
@@ -337,14 +355,14 @@ def process_batch(start_id):
         Norm  = 1 
     elif intensity == 'E':
         z_ori = orig_image2(etas,phis,E)
+        Norm  = 1
     elif intensity == 'C':
-        z_ori = orig_image2(etas,phis,C)
-        #z_ori = orig_image2(etas,phis,pT)
-        Norm  = 0
+        z_ori = orig_image2(etas,phis,CE) #C
+        Norm  = 1#0
 
-    z_ori[z_ori==1000] = 1
-    z_ori[z_ori==500]  = 0.5
-    z_ori[z_ori==0]    = 0#-1
+    #z_ori[z_ori==1000] = 1
+    #z_ori[z_ori==500]  = 0.5
+    #z_ori[z_ori==0]    = 0#-1
 
     print '!!!!!'
     print z_ori[1,20,8:33]
