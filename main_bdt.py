@@ -129,13 +129,14 @@ def bdt_train(ps,X_Train,y_Train,W_train):
     #if ps['dump']:
     if 1:
         joblib.dump(bdt, pkl_path+'/'+'bdt_'+dsc_str+'.pkl')
- 
+        joblib.dump(clf, pkl_path+'/'+'clf_'+dsc_str+'.pkl')
+   
 
 def bdt_test(X_Test,y_Test,W_test,df_Test_orig,ps):
     print '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Loading BDT-Model...'
     dsc_str  = ps['descr'][0] + '_' + '_'.join(ps['descr'][2:5])
-    pkl_path = ps['path_result'] + '/' + 'save_model' #+ '/' + dsc_str 
-    pkl_path = pkl_path+'/'+'bdt_'+dsc_str+'.pkl'
+    pkl_pth  = ps['path_result'] + '/' + 'save_model' #+ '/' + dsc_str 
+    pkl_path = pkl_pth+'/'+'bdt_'+dsc_str+'.pkl'
     bdt      = joblib.load(pkl_path)
     y_pred_proba_bdt           = bdt.predict_proba(X_Test)[:,1]
     auc_bdt                    = metrics.roc_auc_score(y_Test, y_pred_proba_bdt, sample_weight=W_test)
@@ -149,6 +150,30 @@ def bdt_test(X_Test,y_Test,W_test,df_Test_orig,ps):
         out_dict['tpr']            = tpr_bdt
         out_dict['thresholds_bdt'] = thresholds_bdt
         out_dict['roc']            = roc_dict
+
+
+    if 0:
+        clf_pth  = pkl_pth+'/'+'clf_'+dsc_str+'.pkl'
+        clf      = joblib.load(clf_pth)
+        from sklearn.externals.six import StringIO
+        from sklearn.tree import export_graphviz
+        import pydotplus
+        from sklearn import tree
+    
+        features = ["nst","nst"]
+        classes  = ["background","signal"]
+        dot_data = StringIO()
+        export_graphviz(clf, out_file=dot_data,
+                        feature_names=features,  
+                        class_names=classes,  
+                        filled=True, rounded=True,  
+                        special_characters=True) 
+    
+        graph = pydotplus.graph_from_dot_data(dot_data.getvalue())
+        graph.write_pdf("/home/hezhiyua/classifier_tree.pdf")
+
+    
+
     return out_dict
 
 
@@ -178,6 +203,7 @@ def bdt_train_score(X_Train,y_Train,W_train,df_Train,ps):
     out_dict['tpr']            = tpr_bdt
     out_dict['thresholds_bdt'] = thresholds_bdt
     out_dict['roc']            = roc_dict   
+
     return out_dict
 
 

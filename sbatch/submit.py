@@ -31,10 +31,10 @@ flags['tstl']['list'] = [500,1000,2000,5000]
 
 flags['inputs']         = {}
 flags['inputs']['flag'] = ' --inputs '
-flags['inputs']['list'] = ['full']#['2best','full']
+flags['inputs']['list'] = ['full']#['2best']#['full']#['2best','full']
 flags['kin'   ]         = {}
 flags['kin'   ]['flag'] = ' --kin '
-flags['kin'   ]['list'] = [0]#[0,1]
+flags['kin'   ]['list'] = [1]#[0]#[0,1]
 
 
 wait_time = 8 # Seconds
@@ -74,7 +74,7 @@ for i in loop_list:
 
 #"""
 # >>>>>>>>>>>>>>>>>>>>>>>>>>> 2D Parameter space:
-skp_m = [20,30,50]#[40]
+skp_m = [20,30,40,50]#[40]
 skp_l = [500,1000,2000,5000]#[5000]
 fix_str = ' --train 0 '
 

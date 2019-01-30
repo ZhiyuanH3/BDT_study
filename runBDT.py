@@ -7,7 +7,7 @@ B = '/home/hezhiyua/desktop/BDT_study/'
 C = 'bdt_train.py'
 
 D = ' --train ' + '1'
-E = ' --kin '   + '0'
+E = ' --kin '   + '1'#'0'
 F = ' --inputs '+ 'full'#'2best'
 G = ' --trnm '  + '50'
 H = ' --trnl '  + '2000'

@@ -42,13 +42,15 @@ ct      = 500
 
 dsc     = 'testing'
 
-path_data = '/beegfs/desy/user/hezhiyua/2bBacked/skimmed/Skim/fromBrian_forLola/'
-path_out  = '/beegfs/desy/user/hezhiyua/2bBacked/skimmed/Skim/fromBrian_forLola/h5/'
+#path_data = '/beegfs/desy/user/hezhiyua/2bBacked/skimmed/Skim/fromBrian_forLola/large_sgn/c/'
+#path_data = '/beegfs/desy/user/hezhiyua/2bBacked/skimmed/Skim/fromBrian_forLola/'
+path_data = '/beegfs/desy/user/hezhiyua/2bBacked/skimmed/Skim/fromBrian_forLola/large_sgn/ch/all/'
+path_out  = '/beegfs/desy/user/hezhiyua/2bBacked/skimmed/Skim/fromBrian_forLola/h5/lola/'
 
 p                     = {}
-p['train_test_ratio'] = 0.6
-p['N_bkg_to_train']   = 42000#20000#2000000
-p['N_bkg_to_test']    = 10000#5330#11400000
+p['train_test_ratio'] = 0.8#0.6
+p['N_bkg_to_train']   = 20264#42000#20000#2000000
+p['N_bkg_to_test']    = 5064#10000#5330#11400000
 p['maxDataLoadCut']   = 888888888
 
 
@@ -103,6 +105,42 @@ df_train     = pkls['df_train_o']
 df_test_orig = pkls['df_test_orig_o']
 df_all       = df_train.copy()
 
+#print df_test_orig[['is_signal','weight']]
+print df_train[['is_signal','weight']]
+exit()
+
+def col_list_gen(attr_str):
+    col_list = []
+    for i in range(n_cands):
+        str_i = 'Jet'+str(1)+'s_pfc'+str(i+1)+'_'+attr_str#attr_trans[j]  
+        col_list.append(str_i)
+    return col_list
+
+#ptype_cols = col_list_gen('pType')
+#ch_cols    = col_list_gen('charged_hadron')
+#iftrack_cols = col_list_gen('ifTrack')
+
+def pick_ch(df,i):
+    attr_str_1       = 'pType'
+    str_i            = 'Jet'+str(1)+'s_pfc'+str(i+1)+'_'+attr_str_1
+    #msk_1            = df[str_i] == 0
+    #df[str_i][msk_1] = -1
+    msk_1            = (df[str_i] != 211) & (df[str_i] != -211) & (df[str_i] != 130)
+    df[str_i][msk_1] = -1
+    msk_2            = (df[str_i] == 211) | (df[str_i] == -211)
+    msk_3            = (df[str_i] == 130) #(df[str_i] != 211) & (df[str_i] != -211) & (df[str_i] != -1)
+    df[str_i][msk_2] = 1
+    df[str_i][msk_3] = 0
+  
+
+ 
+
+# pick out the charged hadron terms
+for ii in range(n_cands):
+    pick_ch(df_all,ii)
+    pick_ch(df_test_orig,ii)
+#exit()
+
 
 open_time = time.time()
 df        = pd.DataFrame()
@@ -115,12 +153,13 @@ df_t      = pd.DataFrame()
 #dfTest_t['tt'] = 1
 print df_all[:12]
 
+
 attr_trans       = {}
 attr_trans['E']  = 'energy'
 attr_trans['PX'] = 'px'
 attr_trans['PY'] = 'py'
 attr_trans['PZ'] = 'pz'
-attr_trans['C']  = 'ifTrack'
+attr_trans['C']  = 'pType'#'ifTrack'
 
 for i in range(n_cands):     
     for j in ['E','PX','PY','PZ','C']:
