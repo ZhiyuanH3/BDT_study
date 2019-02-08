@@ -261,7 +261,8 @@ def process_batch(start_id):
     #feat_list =  ["E","PX","PY","PZ"]
     
     ##Brian:
-    feat_list =  ["E","PX","PY","PZ","C"]
+    #feat_list =  ["E","PX","PY","PZ","C"]
+    feat_list = ['E','PX','PY','PZ','C','H']
 
     cols = ["{0}_{1}".format(feature,constit)
             for feature in feat_list for constit in range(n_constit)]
@@ -293,8 +294,10 @@ def process_batch(start_id):
 
     ##Brian:
     C      = vec4[:,4,:]  
+    H      = vec4[:,5,:]
     C[C<0] = 0
     CE     = C*E
+    CHE    = CE*H
     print C
     print E
     #print C*E
@@ -359,6 +362,11 @@ def process_batch(start_id):
     elif intensity == 'C':
         z_ori = orig_image2(etas,phis,CE) #C
         Norm  = 1#0
+    elif intensity == 'H':
+        z_ori = orig_image2(etas,phis,CHE) #H
+        Norm  = 1
+
+
 
     #z_ori[z_ori==1000] = 1
     #z_ori[z_ori==500]  = 0.5

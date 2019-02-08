@@ -7,30 +7,33 @@ main_str  = 'python preprocess_shihnew.py '
 pth_root  = '/beegfs/desy/user/hezhiyua/2bBacked/skimmed/Skim/fromBrian_for2d/'
 #pth_in    = pth_root + 'lola/c/' #ch
 #pth_in    = pth_root + 'pfc_400/large_sgn/output/'
-pth_in    = pth_root + 'pfc_400/large_sgn/output/train/'
+#pth_in    = pth_root + 'pfc_400/large_sgn/output/train/'
+pth_in    = pth_root + 'pfc_400/raw/output/test/' + '50_5000/'
 
-
-color     = 'C'
-color     = 'E'
+color     = 'H'
+#color     = 'C'
+#color     = 'E'
 
 #pth_out   = pth_root+'2d/' + 'augmented/e/'#+ 'rot_270/'#'rot_90/'#'rot_0/'#'rot_180/'#'rot0flp1/'#'rot1flp1/'
 #pth_out   = pth_root + '2d/' + 'no_pType/dR_test/'
 #pth_out   = pth_root + '2d/' + 'no_pType/dR_test/' + color + '/'
-pth_out   = pth_root + 'pfc_400/large_sgn/2d/' + color + '/'
+#pth_out   = pth_root + 'pfc_400/large_sgn/2d/' + color + '/'
+pth_out   = pth_root + 'pfc_400/raw/output/test/50_5000/2d/' + color + '/'
 act('mkdir ' + pth_out)
 
 
 #in_typ    = {'test': 13266, 'val': 3981, 'train': 9588} 
 #in_typ    = {'test': 5369, 'val': 5345, 'train': 16138} 
 
-in_typ    = {'test': 7966, 'val': 7948, 'train': 23854}
+#in_typ    = {'test': 7966, 'val': 7948, 'train': 23854}
+in_typ    = {'test': 5171, 'val': 5160, 'train': 15487}
 
 rotation  = str(1)  #0#True
 flip      = str(1)  #0#False
 
 aug_mode  = 0
 dR        = 0.4
-n_pixels  = 42#41#43#44#40#28#40
+n_pixels  = 36#42#41#43#44#40#28#40
 n_constit = 400#40
 
 def run_i(pth_out, rot_angle):
