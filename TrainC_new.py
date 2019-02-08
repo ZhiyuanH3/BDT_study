@@ -33,6 +33,17 @@ def mainF(kwargs):
     df_train_orig = pkls['df_train_orig']
     df_test_orig  = pkls['df_test_orig'] 
     in_dict       = pkls['out_dict'] 
+
+    ################################################# Debug
+    print df_train_orig[:8]
+    from matplotlib import pyplot as plt
+    bins = np.linspace(0,1,20)
+    plt.hist(df_train_orig[df_train_orig['is_signal']==1]['Jet1s_J1cHadEFrac'].tolist(), bins, facecolor='blue', label='sgn', alpha=0.5)
+    plt.hist(df_train_orig[df_train_orig['is_signal']==0]['Jet1s_J1cHadEFrac'].tolist(), bins, facecolor='red' , label='qcd', alpha=0.5)
+    plt.savefig('hist_chf'+'.png')
+    exit()
+    ################################################# Debug
+
     """
     timeA        = timer()
     descrStr     = '_'.join(p['descr'])
@@ -45,7 +56,7 @@ def mainF(kwargs):
     timeB        = timer()
     print 'Time for loading datas: ', str(timeB-timeA), 'sec'
     """
-
+    #print df_train_orig[:2]
     ColumnLabelDict    = in_dict['ColumnLabelDict']  
     ColumnLabelDict_sk = in_dict['ColumnLabelDict_sk']
     JetPrfx            = in_dict['JetPrfx'] 
@@ -61,6 +72,9 @@ def mainF(kwargs):
     #--------------------------Benchmark--------------------------------        
     allAttrList    = id.CountAttrInList(ColumnLabelDict_sk, p['attrAll'])
     # ~~~~~~~~Take in all the attributes info
+    print 'allAttrList', allAttrList
+    print 'isSigPos',isSigPos
+    print 'weightPos',weightPos
     X_train, y_train, w_train = df_train[:,allAttrList], df_train[:,isSigPos], df_train[:,weightPos]
     X_test , y_test , w_test  = df_test[:,allAttrList] , df_test[:,isSigPos] , df_test[:,weightPos]
     if p['weight_on'] == 0:

@@ -92,7 +92,7 @@ def SetCrossSection(inst,xs):
 ###############
 #             #
 ###############
-def LoadData(ps, name_dict, setWeight=False, mainTree='tree44', thrsd=1000000):
+def LoadData(ps, name_dict, mainTree='tree44', thrsd=1000000):
     df_dict     = {}
     N_dict      = {}
     N_available = 0
@@ -136,8 +136,61 @@ def LoadData(ps, name_dict, setWeight=False, mainTree='tree44', thrsd=1000000):
         df_dict[w]   = df_dict[w][:][dropone]
         #~~~~~~~~get features
         N_available  = N_available + nevents
-  
+ 
+    """
+    for w in name_dict:
+        print '>>>>>>>>>>>>>>>>>>> debug:'
+        print w
+        print len(df_dict[w])
+    """
+ 
     return df_dict, N_dict, N_available
+
+
+
+
+
+
+###############
+#             #
+###############
+def LoadData_for2d(ps, name_dict, mainTree='tree44', thrsd=1000000):
+    df_dict     = {}
+    N_dict      = {}
+    N_available = 0
+    for w in name_dict:
+        descrStr    = ps['descr'][2] + '_' + ps['descr'][5]
+        preload_pth = ps['path']+'/'+ps['loadedDatas_dir']+'/'+'preload_'+descrStr+'_'+w+'.pkl'
+        if os.path.isfile(preload_pth):
+            in_dict   = joblib.load(preload_pth)
+            nevents   = in_dict['N']
+            N_dict[w] = nevents
+            if nevents > thrsd:    N_dict[w] = thrsd
+            print "number of events: " + str(nevents)
+            print str(N_dict[w]) + ' loaded..'
+            print '................................loading data'
+            df_dict[w] = in_dict['df']
+        else:
+            print '>>>>>>>>> No data found!!'
+            exit()
+        print '................................data completely loaded'
+        if   name_dict[w].dataType == 'QCD':    df_dict[w]['is_signal'] = 0
+        elif name_dict[w].dataType == 'SGN':    df_dict[w]['is_signal'] = 1
+        #~~~~~~~~drop events with values = -1 
+        print df_dict[w].columns.values[:]
+        firstColName = df_dict[w].columns.values[0]
+        dropone      = df_dict[w][firstColName] != -1
+        df_dict[w]   = df_dict[w][:][dropone]
+        #~~~~~~~~get features
+        N_available  = N_available + nevents
+
+    return df_dict, N_dict, N_available
+
+
+
+
+
+
 
 
 ###############
@@ -184,17 +237,16 @@ def SplitDataNew(df_bkg_dict         ,\
     df_bkg_train_list   = []
     tot_xs              = 0 
 
-    train_test_cut_ratio  = 0.15#0.5
+    train_test_cut_ratio  = 0.6#0.15#0.8#for BDT:0.15#0.5
 
     # >>>>>>>>>>>>>>>>>>>>>>>>>>>>> Calculate the total cross section:
     for w in bkg_name_dict:    tot_xs += xs[w]
     #print '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>total cross section: ', str(tot_xs)
     
-    thrd   = N_bkg_to_test + N_bkg_to_train 
- 
     # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Check if number of background events is enough 
-    if N_available_bkg >= thrd:
+    assert (N_available_bkg >= N_bkg_to_test + N_bkg_to_train), '>>>>>>>> Background data not enough: change config~'
 
+    if 1:
         N_sgn_to_train        = int( N_available_sgn * train_test_ratio )
         N_sgn_to_test         = N_available_sgn - N_sgn_to_train                 
 
@@ -208,6 +260,8 @@ def SplitDataNew(df_bkg_dict         ,\
             
             df_bkg_train_dict[w]     = df_bkg_dict[w].copy()[:train_test_cut_position]
             df_bkg_test_dict[w]      = df_bkg_dict[w].copy()[train_test_cut_position:]  
+            #df_bkg_train_dict[w]     = df_bkg_dict[w][:train_test_cut_position]
+            #df_bkg_test_dict[w]      = df_bkg_dict[w][train_test_cut_position:] 
 
         N_taken_train        = 0       
         N_taken_test         = 0
@@ -222,7 +276,20 @@ def SplitDataNew(df_bkg_dict         ,\
 
         bkg_needed_test       = N_bkg_to_test
         bkg_needed_train      = N_bkg_to_train
- 
+
+        print 'N_available_sgn: ', N_available_sgn
+        print 'train_test_ratio: ', train_test_ratio
+        print 'N_sgn_to_train: ', N_sgn_to_train
+        print 'N_sgn_to_test: ', N_sgn_to_test
+        print 'train_test_cut_ratio: ', train_test_cut_ratio 
+
+        print 'bkg_needed_test: ', bkg_needed_test
+        print 'bkg_needed_train: ', bkg_needed_train
+        print 'N_taken_test: ', N_taken_test
+        print 'N_taken_train: ', N_taken_train 
+
+
+        
         N_to_take_test        = bkg_needed_test  - N_taken_test
         N_to_take_train       = bkg_needed_train - N_taken_train
 
@@ -237,7 +304,7 @@ def SplitDataNew(df_bkg_dict         ,\
                 # Decide how many events should be used(train and test): proportional to the relative portion of a specificHT bin out of the total #available background events
                 N_bkg_to_test_dict[w]     = int(  int(N_bkg_dict[w]*(1-train_test_cut_ratio)) * ( N_to_take_test/float(N_available_test_bkg_left) )  )         
                 N_bkg_to_train_dict[w]    = int(  int(N_bkg_dict[w]*train_test_cut_ratio) * ( N_to_take_train/float(N_available_train_bkg_left) )  )
-
+                print '>>>>>>>>>>>>>>>>>>>>>>> N_bkg_dict_', w, '>=Thrsd: ', Thrsd  
 
             if N_bkg_to_train_dict[w] == 0:
                 # Error prompt if the relative portion of the HT bin is too small
@@ -250,11 +317,18 @@ def SplitDataNew(df_bkg_dict         ,\
             df_bkg_test_dict[w][weightL]    = 0   # Add weight column
             df_bkg_train_dict[w][weightL]   = 0   # Add weight column 
             # Add weights to cope with the relative cross section and to compensate the number of events being used for training
+            """
             df_bkg_train_dict[w].loc[:N_bkg_to_train_dict[w],[weightL]]   = xs[w] / float( N_bkg_to_train_dict[w] * tot_xs  )   # Add to weight column
             df_bkg_test_dict[w].loc[:N_bkg_to_test_dict[w],[weightL]]     = xs[w] / float( N_bkg_to_test_dict[w] * tot_xs  )   # Add to weight column
             
             df_bkg_train_list.append( df_bkg_train_dict[w][ : N_bkg_to_train_dict[w] ] )
             df_bkg_test_list.append(  df_bkg_test_dict[w][  : N_bkg_to_test_dict[w]  ] )
+            """
+            df_bkg_train_dict[w].loc[:,[weightL]]   = xs[w] / float( N_bkg_to_train_dict[w] * tot_xs  )   # Add to weight column
+            df_bkg_test_dict[w].loc[:,[weightL]]    = xs[w] / float( N_bkg_to_test_dict[w] * tot_xs  )   # Add to weight column
+
+            df_bkg_train_list.append(df_bkg_train_dict[w])
+            df_bkg_test_list.append( df_bkg_test_dict[w] )
   
         # Combine all HT bins
         df_bkg              = pd.concat( df_bkg_train_list , ignore_index=True )
@@ -277,11 +351,8 @@ def SplitDataNew(df_bkg_dict         ,\
             df_sig.loc[N_sgn_to_test:, weightL]  = 1 / float( N_sgn_to_train )
 
             df_test_sig                      = df_sig[:N_sgn_to_test]
-            df_sig                           = df_sig[len(df_test_sig):]  
+            df_sig                           = df_sig[N_sgn_to_test:]  
 
-    else:
-        print '>>>>>>>>>>>>>>>>>>>> Background data not enough: Please change config~'    
-        exit()
     return df_bkg, df_sig, df_test_bkg, df_test_sig
 
 

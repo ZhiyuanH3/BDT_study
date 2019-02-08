@@ -32,10 +32,8 @@ def LoadData_main(kwargs):
 
     timeA = timer()
     id.SetCrossSection(bkg_name_dict, p['xs'])
-    #df_bkg_dict, N_bkg_dict, N_available_bkg = id.LoadData(bkg_name_dict,setWeight=True ,thrsd=p['maxDataLoadCut'])
-    #df_sgn_dict, N_sgn_dict, N_available_sgn = id.LoadData(sgn_name_dict,setWeight=False,thrsd=p['maxDataLoadCut'])
-    df_bkg_dict, N_bkg_dict, N_available_bkg = id.LoadData(p,bkg_name_dict,setWeight=True ,thrsd=p['maxDataLoadCut'])
-    df_sgn_dict, N_sgn_dict, N_available_sgn = id.LoadData(p,sgn_name_dict,setWeight=False,thrsd=p['maxDataLoadCut'])
+    df_bkg_dict, N_bkg_dict, N_available_bkg = id.LoadData(p,bkg_name_dict,thrsd=p['maxDataLoadCut'])
+    df_sgn_dict, N_sgn_dict, N_available_sgn = id.LoadData(p,sgn_name_dict,thrsd=p['maxDataLoadCut'])
 
     print '#available background: ',    N_available_bkg
     print '#available signal: '    ,    N_available_sgn
@@ -51,19 +49,27 @@ def LoadData_main(kwargs):
     print df_bkg[:8]
     print '>>>>>>>>>>>>>>>> Number of background used for training: ', len(df_bkg)
     print df_sig[:8]
+
+    print '!!!!!!!!!!!!!!!!!!!!!'
+    print '#df_sig:', len(df_sig)
+    print '#df_bkg', len(df_bkg)
+    print '#df_test_sig:', len(df_test_sig)
+    print '#df_test_bkg', len(df_test_bkg)
+
     df       = pd.concat([df_sig, df_bkg], ignore_index=True)
     
+    #print '~~~~~~~~~~~~~~~~~~~~~~', len(df_test_bkg), len(df_test_sig)
+    #print '~~~~~~~~~~~~~~~~~~~~~~', len(df_bkg), len(df_sig) 
+
     np.random.seed(p['random_seed'])
-    #df      = utils.shuffle(df)
     df       = df.iloc[np.random.permutation(len(df))]
-    #df      = df.iloc[np.random.RandomState(seed=random_seed).permutation(len(df))]
+    #df      = utils.shuffle(df)
+    #df      = df.iloc[np.random.RandomState(seed=44).permutation(len(df))]
     df_train = df.copy()
     df_ts    = pd.concat([df_test_sig, df_test_bkg], ignore_index=True)
     
     np.random.seed(p['random_seed'])
-    #df_test_orig = utils.shuffle(df)  
     df_test_orig  = df_ts.iloc[np.random.permutation(len(df_ts))]
-    #df_test_orig = df_ts.iloc[np.random.RandomState(seed=random_seed).permutation(len(df_ts))]
     
     ColumnLabelDict, ColumnLabelDict_sk, JetPrfx = id.getColumnLabel(df_train)
     print ColumnLabelDict_sk
@@ -76,6 +82,9 @@ def LoadData_main(kwargs):
     
     pkls['df_train_orig']  = df_train
     pkls['df_test_orig']   = df_test_orig
+
+    print len(df_train)
+    print len(df_test_orig)
 
     df_train       = np.asarray(df_train)
     df_test        = np.asarray(df_test_orig)

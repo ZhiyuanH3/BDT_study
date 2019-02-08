@@ -52,7 +52,7 @@ n_pixel      = int(sys.argv[11])#40
 # image preprocessing options
 #Rotate, Flip, Norm  = True, True, True  # full preprocessing
 #Rotate, Flip, Norm  = False, False, True # minimal preprocessing with norm
-Rotate, Flip = bool(sys.argv[6]), bool(sys.argv[7]) #,sys.argv[8]
+Rotate, Flip = int(sys.argv[6]), int(sys.argv[7]) #,sys.argv[8]
 Norm         = True
 
 

@@ -10,7 +10,7 @@ import heapq
 import os
 import sys
 sys.path.append('/home/hezhiyua/desktop/PyrootLearn/ROC/performance_test/')
-from roc_gen import ROC_GEN
+#from roc_gen import ROC_GEN
 
 
 def DecisionScores(model,X_tests,df_test_origin,p):
@@ -45,6 +45,7 @@ def DecisionScores(model,X_tests,df_test_origin,p):
         joblib.dump(smallerDF_b   ,path_dump+'/b.pkl'  )
    
     # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Bayesian Uncertainty:   
+    from roc_gen import ROC_GEN
     ROC = ROC_GEN(smallerDF_s, smallerDF_b)
 
     if poisson == 1:
@@ -215,7 +216,7 @@ def bdt_val(X_Train,y_Train,W_train,df_Train,X_Test,y_Test,W_test,df_Test_orig,p
     par_str      = 'min_weight_fraction_leaf'
     min_par_val  = 0.
     max_par_val  = 0.5
-    n_per_dpth   = 4#5#4#7
+    n_per_dpth   = 7#4#5#4#7
 
     steps        = 0
     goon         = 1  
