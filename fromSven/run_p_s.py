@@ -7,15 +7,19 @@ main_str  = 'python preprocess_shihnew.py '
 pth_root  = '/beegfs/desy/user/hezhiyua/2bBacked/skimmed/Skim/fromBrian_for2d/'
 #pth_in    = pth_root + 'pfc_400/large_sgn/output/train/'
 #pth_in    = pth_root + 'pfc_400/raw/output/test/' + '50_5000/'
-pth_in    = pth_root + 'pfc_400/raw/output/train/test_from_50_5000/' 
+#pth_in    = pth_root + 'pfc_400/raw/output/train/test_from_50_5000/' 
+pth_in    = pth_root + 'pfc_400/raw/2jets/output/test/50_5000/test_from_1j/'
 
 #color     = 'HE'
 #color     = 'CE'
 color     = 'E'
-#color     = 'CHE'
+color     = 'CHE'
 
 #pth_out   = pth_root + 'pfc_400/raw/output/test/50_5000/2d/' + color + '/'
-pth_out   = pth_root + 'pfc_400/raw/output/train/test_from_50_5000/2d/' + color + '/'
+#pth_out   = pth_root + 'pfc_400/raw/output/train/test_from_50_5000/2d/' + color + '/'
+
+pth_out   = pth_root + 'pfc_400/raw/2jets/output/test/50_5000/test_from_1j/2d/' + color + '/'
+#pth_out   = pth_root + 'pfc_400/raw/2jets/output/test/50_5000/2d/' + color + '/'
 act('mkdir ' + pth_out)
 
 
@@ -24,7 +28,11 @@ act('mkdir ' + pth_out)
 #in_typ    = {'test': 7966, 'val': 7948, 'train': 23854}
 
 #in_typ    = {'test': 5171, 'val': 5160, 'train': 15487}
-in_typ    = {'test': 5171, 'val': 7312, 'train': 21947}
+#in_typ    = {'test': 5171, 'val': 7312, 'train': 21947}
+
+
+in_typ    = {'test': 5171, 'val': 10208, 'train': 30633}
+#in_typ    = {'test': 10221, 'val': 10208, 'train': 30633}
 
 rotation  = str(1)  #0#True
 flip      = str(1)  #0#False
