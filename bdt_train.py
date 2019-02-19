@@ -64,7 +64,9 @@ path_result    = '/beegfs/desy/user/hezhiyua/LLP/bdt_output/result/Brian/train_o
 
 
 p                     = {}
-p['train_test_ratio'] = 0.6#0.99#0.6
+#p['train_test_ratio'] = 0.6#0.99#0.6
+p['train_test_ratio'] = 0.8#0.6#0.99#0.6
+
 #p['N_bkg_to_train']   = 2000000
 #p['N_bkg_to_test']    = 11400000
 """
@@ -72,10 +74,15 @@ p['N_bkg_to_train']   = 3750
 p['N_bkg_to_test']    = 21250
 p['maxDataLoadCut']   = 888888888
 """
+"""
 p['N_bkg_to_train']   = 15203#3798
 p['N_bkg_to_test']    = 10135#21533
 p['maxDataLoadCut']   = 888888888
-#"""
+"""
+p['N_bkg_to_train']   = 20271#15203#3798
+p['N_bkg_to_test']    = 5068#10135#21533
+p['maxDataLoadCut']   = 888888888
+
 
 
 CL       = {}

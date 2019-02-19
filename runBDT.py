@@ -18,8 +18,11 @@ F = ' --inputs '+ '2best'#'full'#'2best'
 #L = ' --attr2 ' + 'J1nSelectedTracks'#'J1cEmEFrac'#'J1cMulti'#'J1cHadEFrac'#'J1cMulti'#'J1cHadMulti'#'J1cHadEFrac'#'J1cHadMulti'#'J1photonMulti'#'J1cHadEFrac'#'J1muEFrac'#'J1nSelectedTracks'
 
 
-mass_list = [20,30,40,50]
-ctau_list = [500,1000,2000,5000]
+#mass_list = [20,30,40,50]
+#ctau_list = [500,1000,2000,5000]
+mass_list = [50]#[40]#[50]#[50]
+ctau_list = [5000]#[2000]#[500]
+
 
 for mm in mass_list:
     mm = str(mm)

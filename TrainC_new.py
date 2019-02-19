@@ -34,6 +34,7 @@ def mainF(kwargs):
     df_test_orig  = pkls['df_test_orig'] 
     in_dict       = pkls['out_dict'] 
 
+    """
     ################################################# Debug
     print df_train_orig[:8]
     from matplotlib import pyplot as plt
@@ -41,8 +42,9 @@ def mainF(kwargs):
     plt.hist(df_train_orig[df_train_orig['is_signal']==1]['Jet1s_J1cHadEFrac'].tolist(), bins, facecolor='blue', label='sgn', alpha=0.5)
     plt.hist(df_train_orig[df_train_orig['is_signal']==0]['Jet1s_J1cHadEFrac'].tolist(), bins, facecolor='red' , label='qcd', alpha=0.5)
     plt.savefig('hist_chf'+'.png')
-    exit()
+    #exit()
     ################################################# Debug
+    """
 
     """
     timeA        = timer()

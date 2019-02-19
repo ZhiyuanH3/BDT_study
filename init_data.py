@@ -10,6 +10,8 @@ from ROOT              import TGraphAsymmErrors as GAE
 from ROOT              import TH1F
 from ROOT              import Double
 
+from sklearn.utils     import shuffle
+
 ###############
 #             #
 ###############
@@ -237,7 +239,7 @@ def SplitDataNew(df_bkg_dict         ,\
     df_bkg_train_list   = []
     tot_xs              = 0 
 
-    train_test_cut_ratio  = 0.6#0.15#0.8#for BDT:0.15#0.5
+    train_test_cut_ratio  = 0.8   #0.6#0.15#0.8#for BDT:0.15#0.5
 
     # >>>>>>>>>>>>>>>>>>>>>>>>>>>>> Calculate the total cross section:
     for w in bkg_name_dict:    tot_xs += xs[w]
@@ -257,7 +259,9 @@ def SplitDataNew(df_bkg_dict         ,\
 
         for w in bkg_name_dict:
             train_test_cut_position  = int( N_bkg_dict[w] * train_test_cut_ratio ) 
-            
+     
+            df_bkg_dict[w]           = shuffle(df_bkg_dict[w])
+       
             df_bkg_train_dict[w]     = df_bkg_dict[w].copy()[:train_test_cut_position]
             df_bkg_test_dict[w]      = df_bkg_dict[w].copy()[train_test_cut_position:]  
             #df_bkg_train_dict[w]     = df_bkg_dict[w][:train_test_cut_position]
@@ -346,6 +350,9 @@ def SplitDataNew(df_bkg_dict         ,\
             df_sig                           = df_sig[:] # Only there for the return: should not be used!!
         elif test_mode == 0:
             #if in train mode: split up the data for training and testing
+
+            df_sig = shuffle(df_sig)
+
             df_sig[weightL]                      = 0
             df_sig.loc[:N_sgn_to_test, weightL]  = 1 / float( N_sgn_to_test )
             df_sig.loc[N_sgn_to_test:, weightL]  = 1 / float( N_sgn_to_train )
