@@ -425,6 +425,21 @@ def process_batch(start_id):
         df_out['weight'] = event_weight 
 
 
+
+    ###################################################
+    """
+    import pandas as pd
+    df_out_t            = pd.DataFrame()
+    df_out_t['tuple']   = df_out.apply(lambda r: tuple(r), axis=1).apply(np.array)
+    """ 
+    #print df_out_t
+    #print df_out.columns.tolist()
+    ###################################################
+
+
+
+
+
     print_time("Writing output file")
     df_out.to_hdf(sys.argv[2],'table',append=(start_id!=0),format='table',complib = "blosc", complevel=5)
 
