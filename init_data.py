@@ -239,7 +239,7 @@ def SplitDataNew(df_bkg_dict         ,\
     df_bkg_train_list   = []
     tot_xs              = 0 
 
-    train_test_cut_ratio  = 0.8   #0.6#0.15#0.8#for BDT:0.15#0.5
+    train_test_cut_ratio  = 0.15#0.8   #0.6#0.15#0.8#for BDT:0.15#0.5
 
     # >>>>>>>>>>>>>>>>>>>>>>>>>>>>> Calculate the total cross section:
     for w in bkg_name_dict:    tot_xs += xs[w]
@@ -587,19 +587,42 @@ def CutBaseBenchmarkNew(df_test_orig,inDict,JetPrfx_bkg,refAttr='pt',isSigAttrSt
         if   iList[0] == '<':    BA_l[iAttr] = tt[JetPrfx_bkg+iAttr] < iList[1]
         elif iList[0] == '>':    BA_l[iAttr] = tt[JetPrfx_bkg+iAttr] > iList[1]
 
-    pos       = tt[refAttrLabel]
-    pos_sgn   = tt[weightAttrStr]
-    pos_bkg   = tt[weightAttrStr]
-    n_pos     = tt[weightAttrStr]
+
+   
+    ################################################# new approach:
+    pos_o       = tt[refAttrLabel].copy()
+    pos_sgn_o   = tt[weightAttrStr].copy()
+    pos_bkg_o   = tt[weightAttrStr].copy()
+    n_pos_o     = tt[weightAttrStr].copy()   
+    mask_lst = []
     for iAttr, iList in inDict.iteritems():
         iAttr     = 'J1'+iAttr
-        pos       = pos[ BA_l[iAttr] ]          #events that pass the selection(all the cuts)
-        pos_sgn   = pos_sgn[ BA_l[iAttr] ]      #signal events that pass the selection(all the cuts) 
-        pos_bkg   = pos_bkg[ BA_l[iAttr] ]      #background events that pass the selection(all the cuts)
-        n_pos     = n_pos[ BA_l[iAttr] ]        #see below
-    pos_sgn   = pos_sgn[ sg ]
-    pos_bkg   = pos_bkg[ bg ]
-    n_pos     = float( n_pos.sum() )            #sum up the weights
+        mask_lst.append( BA_l[iAttr] )
+    mask_tpl     = tuple(mask_lst)
+    mask         = pd.concat(mask_tpl, axis=1)
+    mask_pos_sgn = pd.concat((mask,sg), axis=1)
+    mask_pos_bkg = pd.concat((mask,bg), axis=1)
+    pos_sgn   = pos_sgn_o.loc[mask_pos_sgn.all(axis=1)]
+    pos_bkg   = pos_bkg_o.loc[mask_pos_bkg.all(axis=1)]
+    n_pos     = float( n_pos_o.sum() )                 #sum up the weights
+    #################################################
+    #pos       = tt[refAttrLabel]
+    #pos_sgn   = tt[weightAttrStr]
+    #pos_bkg   = tt[weightAttrStr]
+    #n_pos     = tt[weightAttrStr]
+
+    #for iAttr, iList in inDict.iteritems():
+    #    iAttr     = 'J1'+iAttr
+    #    pos       = pos[ BA_l[iAttr] ]          #events that pass the selection(all the cuts)
+    #    pos_sgn   = pos_sgn[ BA_l[iAttr] ]      #signal events that pass the selection(all the cuts) 
+    #    pos_bkg   = pos_bkg[ BA_l[iAttr] ]      #background events that pass the selection(all the cuts)
+    #    n_pos     = n_pos[ BA_l[iAttr] ]        #see below
+
+    #pos_sgn   = pos_sgn[ sg ]
+    #pos_bkg   = pos_bkg[ bg ]
+    #n_pos     = float( n_pos.sum() )            #sum up the weights
+
+
 
     n_sgn        = float( tt[weightAttrStr][sg].sum() )    #sum of weights from all signal
     n_bkg        = float( tt[weightAttrStr][bg].sum() )    #sum of weights from all background
