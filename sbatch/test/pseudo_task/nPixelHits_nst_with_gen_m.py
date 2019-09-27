@@ -243,7 +243,8 @@ def plting(inName,n_pixHit):
         #df_dict[a] = pd.DataFrame.from_records( df[a].values.tolist() )
         is_charged      = df_dict[pre_str+'.'+'isTrack']     == 1
         #at_least_n_pHit = df_dict['nPixHit'] > n_pixHit 
-        at_most_n_pHit  = df_dict[pre_str+'.'+'nPixelHits'] < n_pixHit
+        at_most_n_pHit  = df_dict[pre_str+'.'+'nPixelHits'] > n_pixHit
+        #at_most_n_pHit  = df_dict[pre_str+'.'+'nPixelHits'] < n_pixHit
         df_dict[a]      = df_dict[a][is_charged]
         #df_dict[a]      = df_dict[a][at_least_n_pHit]
         df_dict[a]      = df_dict[a][at_most_n_pHit]    
@@ -305,8 +306,8 @@ name_qcd_list = []
 
 
 for n_pixHit_i in range(n_range):
-    #titles  = 'num of charged PFC with nPixelHits > '+str(n_pixHit_i)
-    titles  = 'num of charged PFC with nPixelHits < '+str(n_pixHit_i)
+    titles  = 'num of charged PFC with nPixelHits > '+str(n_pixHit_i)
+    #titles  = 'num of charged PFC with nPixelHits < '+str(n_pixHit_i)
     xlabels = titles
     
     #qcd_list = plting(name_qcd,n_pixHit_i)

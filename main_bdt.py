@@ -153,7 +153,8 @@ def bdt_test(X_Test,y_Test,W_test,df_Test_orig,ps):
         out_dict['roc']            = roc_dict
 
 
-    if 0:
+    #if 0:
+    if 1:
         clf_pth  = pkl_pth+'/'+'clf_'+dsc_str+'.pkl'
         clf      = joblib.load(clf_pth)
         from sklearn.externals.six import StringIO
@@ -171,7 +172,7 @@ def bdt_test(X_Test,y_Test,W_test,df_Test_orig,ps):
                         special_characters=True) 
     
         graph = pydotplus.graph_from_dot_data(dot_data.getvalue())
-        graph.write_pdf("/home/hezhiyua/classifier_tree.pdf")
+        graph.write_pdf("/home/hezhiyua/"+"DT_decision/"+"classifier_tree.pdf")
 
     
 

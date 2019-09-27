@@ -43,7 +43,7 @@ if   bdt_modelL == 'full':
     attrA    = ['J1cHadEFrac','J1nHadEFrac','J1nEmEFrac','J1cEmEFrac','J1cmuEFrac','J1muEFrac','J1eleEFrac','J1eleMulti','J1photonEFrac','J1photonMulti','J1cHadMulti','J1nHadMulti','J1npr','J1cMulti','J1nMulti','J1nSelectedTracks','J1ecalE','J1VBF_DisplacedJet40_VTightID_Hadronic_match']
 elif bdt_modelL == '2best':
     attr_str = bdt_modelL
-    attrA    = ['J1cHadEFrac','J1cHadEFrac']#['J1cHadEFrac','J1cHadEFrac']#['J1nSelectedTracks','J1eleMulti']#'J1VBF_DisplacedJet40_VTightID_Hadronic_match']#'J1photonMulti'] elif bdt_modelL == 'find2b':
+    attrA    = ['J1nHadEFrac','J1cHadMulti']#['J1cHadEFrac','J1cHadEFrac']#['J1cHadEFrac','J1cHadEFrac']#['J1nSelectedTracks','J1eleMulti']#'J1VBF_DisplacedJet40_VTightID_Hadronic_match']#'J1photonMulti'] elif bdt_modelL == 'find2b':
 elif bdt_modelL == 'find2b':
     attr_str = attr1+'_'+attr2
     attrA    = [attr1,attr2]
@@ -60,12 +60,13 @@ dsc.append('kin'    + str(kin)                                    )
 dsc.append('v'      + str(version)                                )
 descrStr       = '_'.join(dsc) 
 #path_result    = '/beegfs/desy/user/hezhiyua/LLP/bdt_output/result/Lisa/generalization_bdt/'
-path_result    = '/beegfs/desy/user/hezhiyua/LLP/bdt_output/result/Brian/train_on_selected_QCD/test/'
+#path_result    = '/beegfs/desy/user/hezhiyua/LLP/bdt_output/result/Brian/train_on_selected_QCD/test/'
+path_result    = '/beegfs/desy/user/hezhiyua/LLP/bdt_output/result/Brian/DPG/'
 
 
 p                     = {}
 #p['train_test_ratio'] = 0.6#0.99#0.6
-p['train_test_ratio'] = 0.8#0.6#0.99#0.6
+p['train_test_ratio'] = 0.6#0.8#0.6#0.99#0.6
 
 #p['N_bkg_to_train']   = 2000000
 #p['N_bkg_to_test']    = 11400000
@@ -79,8 +80,11 @@ p['N_bkg_to_train']   = 15203#3798
 p['N_bkg_to_test']    = 10135#21533
 p['maxDataLoadCut']   = 888888888
 """
-p['N_bkg_to_train']   = 20271#15203#3798
-p['N_bkg_to_test']    = 5068#10135#21533
+
+#p['N_bkg_to_train']   = 20271#15203#3798
+#p['N_bkg_to_test']    = 5068#10135#21533
+p['N_bkg_to_train']   = 3798
+p['N_bkg_to_test']    = 21533
 p['maxDataLoadCut']   = 888888888
 
 

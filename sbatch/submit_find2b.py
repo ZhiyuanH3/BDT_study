@@ -31,7 +31,7 @@ flags['tstl']['list'] = [500,1000,2000,5000]
 
 flags['inputs']         = {}
 flags['inputs']['flag'] = ' --inputs '
-flags['inputs']['list'] = ['2best']#['full']#['2best']#['full']#['2best','full']
+flags['inputs']['list'] = ['full']#['2best']#['full']#['2best','full']
 flags['kin'   ]         = {}
 flags['kin'   ]['flag'] = ' --kin '
 flags['kin'   ]['list'] = [1]#[0]#[0,1]
@@ -54,14 +54,15 @@ combi     = [  [ flags[k[1]]['list'][i[k[0]]] for k in enumerate(flags) ] for i 
 
 
 
-"""
+#"""
 # >>>>>>>>>>>>>>>>>>>>>>>>>>> Find 2 Best Attribute-Combination:
-attr_list = ['J1cHadEFrac','J1nHadEFrac','J1nEmEFrac','J1cEmEFrac','J1cmuEFrac','J1muEFrac','J1eleEFrac','J1eleMulti','J1photonEFrac','J1photonMulti','J1cHadMulti','J1nHadMulti','J1npr','J1cMulti','J1nMulti','J1nSelectedTracks','J1ecalE']
+#attr_list = ['J1cHadEFrac','J1nHadEFrac','J1nEmEFrac','J1cEmEFrac','J1cmuEFrac','J1muEFrac','J1eleEFrac','J1eleMulti','J1photonEFrac','J1photonMulti','J1cHadMulti','J1nHadMulti','J1npr','J1cMulti','J1nMulti','J1nSelectedTracks','J1ecalE']
+attr_list = ['J1cHadEFrac','J1nHadEFrac','J1nEmEFrac','J1cEmEFrac','J1cHadMulti','J1nHadMulti','J1npr','J1cMulti','J1nMulti','J1ecalE']
 attr_2combi_list = combi_2ofN(attr_list)
 attr_flag_str    = [' --attr1 ',' --attr2 ']
-#fix_str          = ' --train 1 --trnm 60 --trnl 5000 --tstm 60 --tstl 5000 --kin 0 --inputs find2b '
-fix_str          = ' --train 0 --trnm 60 --trnl 5000 --tstm 40 --tstl 500 --kin 0 --inputs find2b '
-loop_list        = attr_2combi_list[52:59]#[60:] #[152:]#[91:]
+fix_str          = ' --train 1 --trnm 30 --trnl 500 --tstm 30 --tstl 500 --kin 1 --inputs find2b '
+#fix_str          = ' --train 0 --trnm 60 --trnl 5000 --tstm 40 --tstl 500 --kin 0 --inputs find2b '
+loop_list        = attr_2combi_list[:]
 for i in loop_list:
     out_string = main_str + fix_str
     for j in enumerate(attr_flag_str):
@@ -69,10 +70,10 @@ for i in loop_list:
     print out_string
     act(out_string)
     slp(wait_time)
-"""
-
-
 #"""
+
+
+"""
 # >>>>>>>>>>>>>>>>>>>>>>>>>>> 2D Parameter space:
 skp_m = [20,30,40,50]#[40]
 skp_l = [500,1000,2000,5000]#[5000]
@@ -93,7 +94,7 @@ for m_skp in skp_m:#[40,50]:
             print out_string
             act(out_string)
             slp(wait_time)
-#"""
+"""
 
 
 

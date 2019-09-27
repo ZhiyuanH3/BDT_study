@@ -24,9 +24,14 @@ def plotROC(inDict):
         for dsci in orderedList:
             tmp_dict = inDict[dsci]['roc']
             #auc_bdt = tmp_dict['aoc']
-            auc_bdt = inDict[dsci]['aoc']
+             
+            show_aoc = 0#1
+            if show_aoc:    auc_bdt = inDict[dsci]['aoc']
+            else       :    auc_bdt = 0.5
 
-            self_cut_base = 1
+
+            #self_cut_base = 1
+            self_cut_base = 0
             use_indp_roc  = 1
 
             if   use_indp_roc == 1:
